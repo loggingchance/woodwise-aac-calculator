@@ -136,21 +136,26 @@ export function strataToCsv(strata: Stratum[]): string {
 }
 
 export function csvToStrata(csv: string): Stratum[] {
-  const [headerLine, ...lines] = csv.trim().split(/\r?\n/);
-  const headers = headerLine.split(",").map((header) => header.trim());
-  return lines.filter(Boolean).map((line, index) => {
-    const cells = line.split(",").map((cell) => cell.trim().replace(/^"|"$/g, ""));
-    const record = Object.fromEntries(headers.map((header, i) => [header, cells[i] ?? ""]));
+  const text = csv.trim().replace(/^\uFEFF/, "");
+  if (!text) return [];
+
+  const [headerLine, ...lines] = text.split(/\r?\n/);
+  const delimiter = detectDelimiter(headerLine);
+  const headers = parseDelimitedLine(headerLine, delimiter).map(normalizeHeader);
+
+  return lines.filter((line) => line.trim()).map((line, index) => {
+    const cells = parseDelimitedLine(line, delimiter);
+    const record = Object.fromEntries(headers.map((header, i) => [header, cells[i]?.trim() ?? ""]));
     return {
       ...createStratum(index + 1),
       name: record.name || `Imported stratum ${index + 1}`,
-      acres: Number(record.acres || 0),
-      forestCoverTypeId: record.forestCoverTypeId || "saf-25",
-      siteClass: (record.siteClass || "2") as Stratum["siteClass"],
-      basalArea: Number(record.basalArea || 0),
-      meanDbh: Number(record.meanDbh || 0),
-      meanDbhBasis: (record.meanDbhBasis || "unknown") as Stratum["meanDbhBasis"],
-      operablePercent: Number(record.operablePercent || 0),
+      acres: parseNumber(record.acres),
+      forestCoverTypeId: normalizeForestType(record.forestCoverTypeId || record.forestCoverType || record.forestType),
+      siteClass: normalizeSiteClass(record.siteClass),
+      basalArea: parseNumber(record.basalArea),
+      meanDbh: parseNumber(record.meanDbh),
+      meanDbhBasis: normalizeDbhBasis(record.meanDbhBasis),
+      operablePercent: parseNumber(record.operablePercent),
       structure: (record.structure || "mixed/unknown") as Stratum["structure"],
       notes: record.notes || ""
     };
@@ -159,6 +164,108 @@ export function csvToStrata(csv: string): Stratum[] {
 
 function csvCell(value: string): string {
   return /[",\n]/.test(value) ? `"${value.replaceAll('"', '""')}"` : value;
+}
+
+function detectDelimiter(headerLine: string): "," | "\t" {
+  return headerLine.includes("\t") && headerLine.split("\t").length >= headerLine.split(",").length ? "\t" : ",";
+}
+
+function parseDelimitedLine(line: string, delimiter: "," | "\t"): string[] {
+  if (delimiter === "\t") return line.split("\t").map(unquoteCell);
+
+  const cells: string[] = [];
+  let cell = "";
+  let quoted = false;
+
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    const next = line[i + 1];
+    if (char === '"' && quoted && next === '"') {
+      cell += '"';
+      i += 1;
+    } else if (char === '"') {
+      quoted = !quoted;
+    } else if (char === "," && !quoted) {
+      cells.push(cell.trim());
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+
+  cells.push(cell.trim());
+  return cells.map(unquoteCell);
+}
+
+function unquoteCell(value: string): string {
+  return value.trim().replace(/^"|"$/g, "").replaceAll('""', '"');
+}
+
+function normalizeHeader(header: string): string {
+  const key = header.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+  const aliases: Record<string, string> = {
+    stratum: "name",
+    stratumname: "name",
+    name: "name",
+    acres: "acres",
+    acre: "acres",
+    forestcovertypeid: "forestCoverTypeId",
+    forestcovertype: "forestCoverType",
+    foresttype: "forestType",
+    covertype: "forestCoverType",
+    saf: "forestCoverType",
+    site: "siteClass",
+    siteclass: "siteClass",
+    basalarea: "basalArea",
+    basalareaac: "basalArea",
+    ba: "basalArea",
+    baac: "basalArea",
+    meandbh: "meanDbh",
+    dbh: "meanDbh",
+    basis: "meanDbhBasis",
+    meandbhbasis: "meanDbhBasis",
+    operable: "operablePercent",
+    operablepercent: "operablePercent",
+    operablepct: "operablePercent",
+    structure: "structure",
+    standstructure: "structure",
+    notes: "notes",
+    note: "notes"
+  };
+  return aliases[key] || key;
+}
+
+function normalizeForestType(value?: string): string {
+  const raw = (value || "").trim();
+  if (!raw) return "saf-25";
+  if (forestTypes.some((type) => type.id === raw)) return raw;
+
+  const safMatch = raw.match(/\b(?:type\s*)?(\d{1,3})\b/i);
+  if (safMatch) {
+    const id = `saf-${safMatch[1]}`;
+    if (forestTypes.some((type) => type.id === id)) return id;
+  }
+
+  const normalized = raw.toLowerCase().replace(/^type\s+\d+\s*[-—–]\s*/, "").replace(/[—–]/g, "-");
+  const match = forestTypes.find((type) => type.name.toLowerCase() === normalized);
+  return match?.id || raw || "saf-25";
+}
+
+function normalizeSiteClass(value?: string): Stratum["siteClass"] {
+  const match = String(value || "2").match(/[123]/);
+  return (match?.[0] || "2") as Stratum["siteClass"];
+}
+
+function normalizeDbhBasis(value?: string): Stratum["meanDbhBasis"] {
+  const normalized = String(value || "unknown").trim().toLowerCase();
+  if (normalized.includes("qmd") || normalized.includes("quadratic")) return "qmd";
+  if (normalized.includes("arith")) return "arithmetic";
+  return "unknown";
+}
+
+function parseNumber(value?: string): number {
+  const cleaned = String(value || "").replace(/,/g, "").replace(/%/g, "").trim();
+  return Number(cleaned || 0);
 }
 
 function round(value: number): number {

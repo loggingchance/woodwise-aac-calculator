@@ -26,4 +26,19 @@ describe("WoodWise foundation forestry utilities", () => {
     expect(imported[0].name).toBe(strata[0].name);
     expect(imported[0].basalArea).toBe(strata[0].basalArea);
   });
+
+  it("imports tab-delimited spreadsheet paste with friendly headers", () => {
+    const pasted = [
+      "Stratum name\tAcres\tForest cover type\tSite class\tBA/ac\tMean DBH\tBasis\tOperable %\tStructure\tNotes",
+      "Northern hardwood matrix\t520\tType 25 - sugar maple-beech-yellow birch\tSite 2\t92\t12.4\tunknown\t88\tuneven-aged\tSample"
+    ].join("\n");
+    const [imported] = csvToStrata(pasted);
+    expect(imported.name).toBe("Northern hardwood matrix");
+    expect(imported.acres).toBe(520);
+    expect(imported.forestCoverTypeId).toBe("saf-25");
+    expect(imported.siteClass).toBe("2");
+    expect(imported.basalArea).toBe(92);
+    expect(imported.meanDbh).toBe(12.4);
+    expect(imported.operablePercent).toBe(88);
+  });
 });
