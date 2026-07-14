@@ -2,7 +2,7 @@
 
 Browser-based foundation for the WoodWise Forestry Annual Allowable Cut calculator, deployed from GitHub Pages.
 
-This app is being built in phases. The current foundation build includes WoodWise branding, PIN-entry UI, property inputs, configurable forest-cover choices, strata editing, CSV/JSON import and export, validation, and a transparent synthetic-inventory audit preview.
+This app is being built in phases. The current foundation build includes WoodWise branding, PIN-entry UI, property inputs, configurable forest-cover choices, strata editing, CSV/JSON import and export, validation, a transparent synthetic-inventory audit preview, and a Northeast FVS API path for official local/server-side smoke runs.
 
 The GitHub Pages app is the user interface. Official USDA Forest Service Forest Vegetation Simulator calculations require a separate FVS API service because GitHub Pages cannot run native FVS executables or receive runtime `/runs` requests.
 
@@ -59,9 +59,11 @@ AAC_APP_PIN=
 AAC_ALLOWED_ORIGINS=https://loggingchance.github.io
 ```
 
-The API validates projects and stores run requests. It will not claim an official FVS run unless `AAC_FVS_NE_PATH` points to the official Northeast FVS executable.
+The API validates projects, generates representative FVS keyword/tree files from each submitted stratum, runs each stratum through official Northeast FVS when `AAC_FVS_NE_PATH` points to the executable, stores the raw `.key`, `.tre`, `.out`, and `.sum` files, and returns an acreage-weighted aggregate report. If no executable is configured, it rejects the run instead of returning synthetic results.
 
-Sample strata CSV is available at `samples/northern-hardwood-sample-strata.csv`.
+Sample strata CSVs are available at `samples/northern-hardwood-sample-strata.csv` and `samples/woodwise-52374-acre-test-strata.csv`.
+
+The 52,374-acre test sample has been run successfully through official Northeast FVS on the Codex workstation using the existing CARBINE-built `FVSne.exe`. The current backend model level is still a strata-level representative-stand smoke test, not a production tree-list calibration or treatment optimizer.
 
 ## Tests
 
@@ -71,7 +73,7 @@ npm test
 
 ## Backend Requirements Still Pending
 
-The production backend must verify the shared PIN, run official Northeast FVS, generate FVS CSV/SQLite/key files, parse official output, create the branded PDF, and assemble the diagnostic run package. Secrets such as `AAC_APP_PIN` must stay on the server.
+The production backend must verify the shared PIN, host the FVS API at an HTTPS URL reachable from GitHub Pages, add treatment/AAC alternatives, create the branded PDF, and assemble the diagnostic run package. Secrets such as `AAC_APP_PIN` must stay on the server.
 
 ## Branding
 
