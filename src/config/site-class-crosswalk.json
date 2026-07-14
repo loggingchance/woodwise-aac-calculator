@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "0.1",
+  "source": "Initial placeholder crosswalk for UI/audit plumbing; must be calibrated before production FVS use",
+  "lastUpdated": "2026-07-13",
+  "validationStatus": "unvalidated",
+  "notes": "User-facing Site 1/2/3 classes are not universal numeric site indexes. These values are surfaced as assumptions and are not claimed to be authoritative.",
+  "defaults": {
+    "1": { "label": "best", "internalProductivityIndex": "high", "validated": false },
+    "2": { "label": "intermediate", "internalProductivityIndex": "medium", "validated": false },
+    "3": { "label": "poorest", "internalProductivityIndex": "low", "validated": false }
+  }
+}

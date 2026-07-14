@@ -1,0 +1,25 @@
+{
+  "name": "woodwise-aac-calculator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build --base=/woodwise-aac-calculator/",
+    "test": "vitest run --environment jsdom",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.8.0",
+    "vite": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "jsdom": "^29.1.1",
+    "vitest": "^3.0.0"
+  }
+}

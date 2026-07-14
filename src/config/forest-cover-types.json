@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0",
+  "source": "WoodWise Forestry AAC Calculator build specification, section 11",
+  "lastUpdated": "2026-07-13",
+  "validationStatus": "user-supplied list; SAF numbers retained for natural forest types",
+  "groups": [
+    {
+      "name": "Boreal forest region",
+      "types": [
+        { "id": "saf-1", "safNumber": 1, "name": "jack pine" },
+        { "id": "saf-5", "safNumber": 5, "name": "balsam fir" },
+        { "id": "saf-12", "safNumber": 12, "name": "black spruce" },
+        { "id": "saf-13", "safNumber": 13, "name": "black spruce-tamarack" },
+        { "id": "saf-16", "safNumber": 16, "name": "aspen" },
+        { "id": "saf-17", "safNumber": 17, "name": "pin cherry" },
+        { "id": "saf-18", "safNumber": 18, "name": "paper birch" },
+        { "id": "saf-38", "safNumber": 38, "name": "tamarack" },
+        { "id": "saf-107", "safNumber": 107, "name": "white spruce" }
+      ]
+    },
+    {
+      "name": "Northern and Northeast-relevant forest types",
+      "types": [
+        { "id": "saf-14", "safNumber": 14, "name": "northern pin oak" },
+        { "id": "saf-15", "safNumber": 15, "name": "red pine" },
+        { "id": "saf-19", "safNumber": 19, "name": "gray birch-red maple" },
+        { "id": "saf-20", "safNumber": 20, "name": "white pine-northern red oak-red maple" },
+        { "id": "saf-21", "safNumber": 21, "name": "eastern white pine" },
+        { "id": "saf-22", "safNumber": 22, "name": "white pine-hemlock" },
+        { "id": "saf-23", "safNumber": 23, "name": "eastern hemlock" },
+        { "id": "saf-24", "safNumber": 24, "name": "hemlock-yellow birch" },
+        { "id": "saf-25", "safNumber": 25, "name": "sugar maple-beech-yellow birch" },
+        { "id": "saf-26", "safNumber": 26, "name": "sugar maple-basswood" },
+        { "id": "saf-27", "safNumber": 27, "name": "sugar maple" },
+        { "id": "saf-28", "safNumber": 28, "name": "black cherry-maple" },
+        { "id": "saf-30", "safNumber": 30, "name": "red spruce-yellow birch" },
+        { "id": "saf-31", "safNumber": 31, "name": "red spruce-sugar maple-beech" },
+        { "id": "saf-32", "safNumber": 32, "name": "red spruce" },
+        { "id": "saf-33", "safNumber": 33, "name": "red spruce-balsam fir" },
+        { "id": "saf-34", "safNumber": 34, "name": "red spruce-Fraser fir" },
+        { "id": "saf-35", "safNumber": 35, "name": "paper birch-red spruce-balsam fir" },
+        { "id": "saf-37", "safNumber": 37, "name": "northern white-cedar" },
+        { "id": "saf-39", "safNumber": 39, "name": "black ash-American elm-red maple" },
+        { "id": "saf-45", "safNumber": 45, "name": "pitch pine" },
+        { "id": "saf-51", "safNumber": 51, "name": "white pine-chestnut oak" },
+        { "id": "saf-52", "safNumber": 52, "name": "white oak-black oak-northern red oak" },
+        { "id": "saf-53", "safNumber": 53, "name": "white oak" },
+        { "id": "saf-55", "safNumber": 55, "name": "northern red oak" },
+        { "id": "saf-60", "safNumber": 60, "name": "beech-sugar maple" },
+        { "id": "saf-97", "safNumber": 97, "name": "Atlantic white-cedar" },
+        { "id": "saf-108", "safNumber": 108, "name": "red maple" },
+        { "id": "saf-109", "safNumber": 109, "name": "hawthorn" }
+      ]
+    },
+    {
+      "name": "Plantations",
+      "types": [
+        { "id": "plantation-red-pine", "name": "red pine plantation" },
+        { "id": "plantation-eastern-white-pine", "name": "eastern white pine plantation" },
+        { "id": "plantation-white-spruce", "name": "white spruce plantation" },
+        { "id": "plantation-norway-spruce", "name": "Norway spruce plantation" },
+        { "id": "plantation-larch", "name": "larch plantation" },
+        { "id": "plantation-mixed-softwood", "name": "mixed softwood plantation" }
+      ]
+    }
+  ]
+}
