@@ -118,6 +118,75 @@ main {
   color: #553700;
 }
 
+.run-panel {
+  align-items: center;
+  background: #fffdf7;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  padding: 1rem clamp(1rem, 3vw, 2rem);
+}
+
+.run-panel h2 {
+  color: var(--forest);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.45rem;
+  margin: 0;
+}
+
+.run-panel p {
+  color: var(--muted);
+  margin: 0.25rem 0 0;
+}
+
+.run-status {
+  display: inline-block;
+  font-size: 0.86rem;
+  font-weight: 800;
+  margin-top: 0.65rem;
+}
+
+.run-status.ready {
+  color: var(--forest);
+}
+
+.run-status.blocked {
+  color: var(--warn);
+}
+
+.run-actions {
+  display: grid;
+  gap: 0.55rem;
+  justify-items: end;
+}
+
+.run-actions button {
+  font-size: 1rem;
+  justify-content: center;
+  min-height: 44px;
+  width: 100%;
+}
+
+.run-message {
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin: 0;
+  padding: 0.55rem;
+  width: 100%;
+}
+
+.run-message.blocked,
+.run-message.error {
+  background: #fff2cf;
+  color: var(--warn);
+}
+
+.run-message.submitted {
+  background: #e6f1eb;
+  color: var(--forest);
+}
+
 .layout {
   display: grid;
   gap: 1rem;
@@ -485,9 +554,15 @@ td {
 
   .toolbar,
   .topbar,
+  .run-panel,
   .status-band {
     align-items: stretch;
+    grid-template-columns: 1fr;
     flex-direction: column;
+  }
+
+  .run-actions {
+    justify-items: stretch;
   }
 
   .form-grid {

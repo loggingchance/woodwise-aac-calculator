@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_AAC_FRONT_PIN_HASH?: string;
+  readonly VITE_AAC_API_URL?: string;
 }
 
 interface ImportMeta {
