@@ -1,10 +1,10 @@
 # WoodWise Forestry AAC Calculator
 
-Browser-based foundation for the WoodWise Forestry Annual Allowable Cut calculator.
+Browser-based foundation for the WoodWise Forestry Annual Allowable Cut calculator, deployed from GitHub Pages.
 
 This app is being built in phases. The current foundation build includes WoodWise branding, PIN-entry UI, property inputs, configurable forest-cover choices, strata editing, CSV/JSON import and export, validation, and a transparent synthetic-inventory audit preview.
 
-It does not yet run official USDA Forest Service Forest Vegetation Simulator calculations. Any biological preview values in this version are labeled as preview/audit values and must not be presented as official FVS output.
+The GitHub Pages app is the user interface. Official USDA Forest Service Forest Vegetation Simulator calculations require a separate FVS API service because GitHub Pages cannot run native FVS executables or receive runtime `/runs` requests.
 
 ## Modeling Intent
 
@@ -33,35 +33,41 @@ https://loggingchance.github.io/woodwise-aac-calculator/
 
 The static front-door PIN is checked in the browser with a SHA-256 hash. The launch PIN is `8675309`; replace it by setting `VITE_AAC_FRONT_PIN_HASH` to a SHA-256 hex digest during build. This is not a substitute for the backend-verified PIN required before production FVS runs.
 
-## Tests
+### FVS API URL
 
-```bash
-npm test
-```
-
-## Local API
-
-The browser app submits FVS runs to an API URL. For local testing:
-
-```bash
-npm run server
-```
-
-Or double-click:
+Set this repository variable before deploying production runs:
 
 ```text
-start-local-app.cmd
+VITE_AAC_API_URL=https://your-fvs-api.example.com
 ```
 
-Then set the app API URL to:
+The public GitHub Pages app will use that URL when the user clicks **Run FVS analysis**. Until the variable is set, the app keeps the API URL visible as a required configuration item and will not pretend to run FVS.
+
+## FVS API Service
+
+The `server/` folder contains the first API scaffold for:
+
+- `GET /health`
+- `POST /projects/validate`
+- `POST /runs`
+
+That service is not hosted by GitHub Pages. It belongs on the Windows FVS machine or another server that can run the official Northeast FVS executable. Configure:
 
 ```text
-http://127.0.0.1:8787
+AAC_FVS_NE_PATH=
+AAC_APP_PIN=
+AAC_ALLOWED_ORIGINS=https://loggingchance.github.io
 ```
 
 The API validates projects and stores run requests. It will not claim an official FVS run unless `AAC_FVS_NE_PATH` points to the official Northeast FVS executable.
 
 Sample strata CSV is available at `samples/northern-hardwood-sample-strata.csv`.
+
+## Tests
+
+```bash
+npm test
+```
 
 ## Backend Requirements Still Pending
 

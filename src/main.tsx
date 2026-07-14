@@ -43,7 +43,7 @@ function App() {
 
     if (!runApiUrl) {
       setRunState("blocked");
-      setRunMessage("Enter the Northeast FVS API URL before submitting a run.");
+      setRunMessage("The GitHub deployment does not have a Northeast FVS API URL configured yet. Set VITE_AAC_API_URL in the repository variables before production use.");
       return;
     }
 
@@ -109,7 +109,7 @@ function App() {
         <div>
           <h2>Run Northeast FVS Analysis</h2>
           <p>
-            Submit the current property and strata to the official FVS backend, then return the AAC report, PDF, and run package.
+            Submit the current property and strata to the configured official FVS API, then return the AAC report, PDF, and run package.
           </p>
           <span className={`run-status ${apiUrl.trim() ? "ready" : "blocked"}`}>
             {apiUrl.trim() ? "FVS API URL ready" : "FVS API URL needed"}
@@ -118,7 +118,7 @@ function App() {
         <div className="run-actions">
           <label className="api-url-field">
             <span>FVS API URL</span>
-            <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} placeholder="http://127.0.0.1:8787" />
+            <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} placeholder="Set by GitHub variable VITE_AAC_API_URL" />
           </label>
           <button disabled={runState === "submitting"} onClick={() => void runFvsAnalysis()}>
             <Play size={18} /> {runState === "submitting" ? "Submitting" : "Run FVS analysis"}

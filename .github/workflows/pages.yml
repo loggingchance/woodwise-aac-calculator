@@ -34,6 +34,9 @@ jobs:
         run: npm test
 
       - name: Build
+        env:
+          VITE_AAC_API_URL: ${{ vars.VITE_AAC_API_URL }}
+          VITE_AAC_FRONT_PIN_HASH: ${{ vars.VITE_AAC_FRONT_PIN_HASH }}
         run: npm run build
 
       - name: Upload artifact
