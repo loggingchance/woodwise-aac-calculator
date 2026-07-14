@@ -204,20 +204,48 @@ function App() {
   );
 }
 
+const defaultFrontPinHash = "c4edfe54f8d073ad6cc47bc161893c53b3b1b76692325da0f3ebf4479ffbc97b";
+const frontPinHash = import.meta.env.VITE_AAC_FRONT_PIN_HASH || defaultFrontPinHash;
+
+async function sha256Hex(value: string): Promise<string> {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 function PinScreen({ onEnter }: { onEnter: () => void }) {
   const [pin, setPin] = useState("");
+  const [error, setError] = useState("");
+  const [checking, setChecking] = useState(false);
+
+  async function submitPin() {
+    if (!pin || checking) return;
+    setChecking(true);
+    setError("");
+    const enteredHash = await sha256Hex(pin.trim());
+    if (enteredHash === frontPinHash) {
+      onEnter();
+    } else {
+      setError("That PIN did not match. Check the code and try again.");
+    }
+    setChecking(false);
+  }
+
   return (
     <main className="pin-screen">
       <img className="pin-masthead" src="/branding/woodwise-aac-masthead.png" alt="WoodWise Forestry AAC Calculator masthead" />
       <section className="pin-panel">
         <img src="/branding/woodwise-forestry-logo.png" alt="WoodWise Forestry logo" />
         <h1>WoodWise Forestry AAC Calculator</h1>
-        <p>First-version access will be verified by the backend. This local foundation build accepts any PIN only to preview the interface.</p>
+        <p>Enter the shared WoodWise access PIN to open the calculator.</p>
         <label className="field">
           <span>Shared PIN</span>
-          <input type="password" value={pin} onChange={(event) => setPin(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && pin) onEnter(); }} />
+          <input type="password" value={pin} onChange={(event) => setPin(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void submitPin(); }} />
         </label>
-        <button disabled={!pin} onClick={onEnter}><ShieldCheck size={18} /> Enter calculator</button>
+        {error && <p className="pin-error" role="alert">{error}</p>}
+        <button disabled={!pin || checking} onClick={() => void submitPin()}><ShieldCheck size={18} /> {checking ? "Checking" : "Enter calculator"}</button>
       </section>
     </main>
   );

@@ -31,6 +31,8 @@ Expected public URL after Pages is enabled:
 https://loggingchance.github.io/woodwise-aac-calculator/
 ```
 
+The static front-door PIN is checked in the browser with a SHA-256 hash. The launch PIN is `woodwise`; replace it by setting `VITE_AAC_FRONT_PIN_HASH` to a SHA-256 hex digest during build. This is not a substitute for the backend-verified PIN required before production FVS runs.
+
 ## Tests
 
 ```bash

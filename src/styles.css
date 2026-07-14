@@ -409,6 +409,15 @@ td {
   text-align: left;
 }
 
+.pin-error {
+  background: #f8e5e1;
+  border-radius: 6px;
+  color: var(--danger);
+  margin: 0 0 0.8rem;
+  padding: 0.6rem;
+  text-align: left;
+}
+
 @media (max-width: 980px) {
   .layout,
   .metric-grid,
