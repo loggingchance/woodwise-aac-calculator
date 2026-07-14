@@ -3,6 +3,7 @@ dist/
 .npm-cache/
 .gh-config/
 .gh-cache/
+.aac-runs/
 *.tsbuildinfo
 .env
 .env.*
