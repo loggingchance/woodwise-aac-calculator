@@ -15,6 +15,7 @@ import {
 } from "./lib/forestry";
 import type { PropertyInfo, Stratum } from "./types/project";
 import sampleStrataCsv from "../samples/northern-hardwood-sample-strata.csv?raw";
+import acreageTestStrataCsv from "../samples/woodwise-52374-acre-test-strata.csv?raw";
 
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 const configuredApiBaseUrl = import.meta.env.VITE_AAC_API_URL?.replace(/\/$/, "") || "";
@@ -168,6 +169,7 @@ function App() {
           <div className="button-row">
             <button onClick={() => setStrata([...strata, createStratum(strata.length + 1)])}><Plus size={18} /> Add stratum row</button>
             <button onClick={() => setStrata(csvToStrata(sampleStrataCsv))}><Upload size={18} /> Load sample</button>
+            <button onClick={() => setStrata(csvToStrata(acreageTestStrataCsv))}><Upload size={18} /> Load 52,374-acre test</button>
             <button onClick={() => download("woodwise-strata.csv", strataToCsv(strata), "text/csv")}><Download size={18} /> CSV</button>
             <button onClick={() => download("woodwise-project.json", JSON.stringify({ property, strata }, null, 2), "application/json")}><FileJson size={18} /> JSON</button>
             <button onClick={() => fileRef.current?.click()}><Upload size={18} /> Upload JSON</button>

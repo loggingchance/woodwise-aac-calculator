@@ -41,4 +41,14 @@ describe("WoodWise foundation forestry utilities", () => {
     expect(imported.meanDbh).toBe(12.4);
     expect(imported.operablePercent).toBe(88);
   });
+
+  it("imports optional volume calibration columns", () => {
+    const csv = [
+      "stratumOrStand,acres,forestCoverTypeId,siteClass,basalArea,meanDbh,meanDbhBasis,operablePercent,structure,currentSawtimberMbfPerAcre,currentGreenTonsPerAcre,notes",
+      "Best northern hardwood sawtimber,18000,saf-25,1,110,15.2,qmd,92,uneven-aged,5.5,68,Test"
+    ].join("\n");
+    const [imported] = csvToStrata(csv);
+    expect(imported.currentSawtimberMbfPerAcre).toBe(5.5);
+    expect(imported.currentGreenTonsPerAcre).toBe(68);
+  });
 });

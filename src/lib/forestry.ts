@@ -130,8 +130,8 @@ export function reportTotals(property: PropertyInfo, strata: Stratum[], metrics:
 }
 
 export function strataToCsv(strata: Stratum[]): string {
-  const fields = ["name", "acres", "forestCoverTypeId", "siteClass", "basalArea", "meanDbh", "meanDbhBasis", "operablePercent", "structure", "notes"];
-  const header = ["stratumOrStand", "acres", "forestCoverTypeId", "siteClass", "basalArea", "meanDbh", "meanDbhBasis", "operablePercent", "structure", "notes"];
+  const fields = ["name", "acres", "forestCoverTypeId", "siteClass", "basalArea", "meanDbh", "meanDbhBasis", "operablePercent", "structure", "currentSawtimberMbfPerAcre", "currentGreenTonsPerAcre", "notes"];
+  const header = ["stratumOrStand", "acres", "forestCoverTypeId", "siteClass", "basalArea", "meanDbh", "meanDbhBasis", "operablePercent", "structure", "currentSawtimberMbfPerAcre", "currentGreenTonsPerAcre", "notes"];
   const rows = strata.map((item) => fields.map((key) => csvCell(String(item[key as keyof Stratum] ?? ""))).join(","));
   return [header.join(","), ...rows].join("\n");
 }
@@ -158,6 +158,8 @@ export function csvToStrata(csv: string): Stratum[] {
       meanDbhBasis: normalizeDbhBasis(record.meanDbhBasis),
       operablePercent: parseNumber(record.operablePercent),
       structure: (record.structure || "mixed/unknown") as Stratum["structure"],
+      currentSawtimberMbfPerAcre: parseOptionalNumber(record.currentSawtimberMbfPerAcre),
+      currentGreenTonsPerAcre: parseOptionalNumber(record.currentGreenTonsPerAcre),
       notes: record.notes || ""
     };
   });
@@ -233,6 +235,16 @@ function normalizeHeader(header: string): string {
     operablepct: "operablePercent",
     structure: "structure",
     standstructure: "structure",
+    currentsawtimbermbfperacre: "currentSawtimberMbfPerAcre",
+    sawtimbermbfperacre: "currentSawtimberMbfPerAcre",
+    sawtimbermbfac: "currentSawtimberMbfPerAcre",
+    mbfperacre: "currentSawtimberMbfPerAcre",
+    mbfac: "currentSawtimberMbfPerAcre",
+    currentgreentonsperacre: "currentGreenTonsPerAcre",
+    greentonsperacre: "currentGreenTonsPerAcre",
+    greentonsac: "currentGreenTonsPerAcre",
+    tonsperacre: "currentGreenTonsPerAcre",
+    tonsac: "currentGreenTonsPerAcre",
     notes: "notes",
     note: "notes"
   };
@@ -270,6 +282,11 @@ function normalizeDbhBasis(value?: string): Stratum["meanDbhBasis"] {
 function parseNumber(value?: string): number {
   const cleaned = String(value || "").replace(/,/g, "").replace(/%/g, "").trim();
   return Number(cleaned || 0);
+}
+
+function parseOptionalNumber(value?: string): number | undefined {
+  const cleaned = String(value || "").replace(/,/g, "").replace(/%/g, "").trim();
+  return cleaned ? Number(cleaned) : undefined;
 }
 
 function round(value: number): number {

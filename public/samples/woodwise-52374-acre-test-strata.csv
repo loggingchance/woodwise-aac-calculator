@@ -1,0 +1,6 @@
+stratumOrStand,acres,forestCoverTypeId,siteClass,basalArea,meanDbh,meanDbhBasis,operablePercent,structure,currentSawtimberMbfPerAcre,currentGreenTonsPerAcre,notes
+Best northern hardwood sawtimber,18000,saf-25,1,110,15.2,qmd,92,uneven-aged,5.5,68,Best hardwood sites; high current stocking and sawtimber volume
+Intermediate northern hardwood sawtimber,15500,saf-25,2,92,13.1,qmd,88,uneven-aged,3.4,56,Second-tier northern hardwood; lower stocking and sawtimber than best sites
+Northern hardwood poletimber,8400,saf-108,2,105,8.8,qmd,90,even-aged,1.1,62,Well-stocked hardwood poletimber; limited sawtimber volume per acre
+Natural softwood and softwood-hardwood mix,9374,saf-22,2,98,12.0,qmd,78,mixed/unknown,2.4,58,Approximately 7000 acres natural softwood/softwood-hardwood plus mixed transition acreage
+Softwood plantations,1100,plantation-eastern-white-pine,1,125,11.6,qmd,95,even-aged,2.2,74,Single softwood plantation stratum
