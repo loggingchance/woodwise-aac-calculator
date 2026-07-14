@@ -114,7 +114,6 @@ function App() {
                 <th>Basis</th>
                 <th>Operable %</th>
                 <th>Structure</th>
-                <th>Residual BA</th>
                 <th aria-label="Actions"></th>
               </tr>
             </thead>
@@ -140,7 +139,6 @@ function App() {
                   <td><select value={stratum.meanDbhBasis} onChange={(e) => updateStratum(stratum.id, { meanDbhBasis: e.target.value as Stratum["meanDbhBasis"] }, strata, setStrata)}><option value="unknown">unknown</option><option value="qmd">QMD</option><option value="arithmetic">arithmetic</option></select></td>
                   <td><input type="number" value={stratum.operablePercent} onChange={(e) => updateStratum(stratum.id, { operablePercent: Number(e.target.value) }, strata, setStrata)} /></td>
                   <td><select value={stratum.structure} onChange={(e) => updateStratum(stratum.id, { structure: e.target.value as Stratum["structure"] }, strata, setStrata)}><option>mixed/unknown</option><option>even-aged</option><option>uneven-aged</option><option>two-aged</option></select></td>
-                  <td><input type="number" value={stratum.residualBaFloor} onChange={(e) => updateStratum(stratum.id, { residualBaFloor: Number(e.target.value) }, strata, setStrata)} /></td>
                   <td className="icon-actions">
                     <button title="Duplicate row" aria-label="Duplicate row" onClick={() => setStrata([...strata, { ...stratum, id: crypto.randomUUID(), name: `${stratum.name} copy` }])}><Copy size={16} /></button>
                     <button title="Delete row" aria-label="Delete row" onClick={() => setStrata(strata.filter((item) => item.id !== stratum.id))}><Trash2 size={16} /></button>

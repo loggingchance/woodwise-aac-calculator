@@ -26,7 +26,6 @@ export function createStratum(index = 1): Stratum {
     meanDbhBasis: "unknown",
     operablePercent: 90,
     structure: "mixed/unknown",
-    residualBaFloor: 55,
     notes: ""
   };
 }
@@ -131,7 +130,7 @@ export function reportTotals(property: PropertyInfo, strata: Stratum[], metrics:
 }
 
 export function strataToCsv(strata: Stratum[]): string {
-  const header = ["name", "acres", "forestCoverTypeId", "siteClass", "basalArea", "meanDbh", "meanDbhBasis", "operablePercent", "structure", "residualBaFloor", "notes"];
+  const header = ["name", "acres", "forestCoverTypeId", "siteClass", "basalArea", "meanDbh", "meanDbhBasis", "operablePercent", "structure", "notes"];
   const rows = strata.map((item) => header.map((key) => csvCell(String(item[key as keyof Stratum] ?? ""))).join(","));
   return [header.join(","), ...rows].join("\n");
 }
@@ -153,7 +152,6 @@ export function csvToStrata(csv: string): Stratum[] {
       meanDbhBasis: (record.meanDbhBasis || "unknown") as Stratum["meanDbhBasis"],
       operablePercent: Number(record.operablePercent || 0),
       structure: (record.structure || "mixed/unknown") as Stratum["structure"],
-      residualBaFloor: Number(record.residualBaFloor || 55),
       notes: record.notes || ""
     };
   });

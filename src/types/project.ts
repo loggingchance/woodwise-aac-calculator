@@ -29,7 +29,6 @@ export interface Stratum {
   structure: StandStructure;
   currentSawtimberMbfPerAcre?: number;
   currentGreenTonsPerAcre?: number;
-  residualBaFloor: number;
   notes: string;
 }
 
