@@ -24,6 +24,17 @@ if errorlevel 1 (
 if not exist ".gh-config" mkdir ".gh-config"
 set "GH_CONFIG_DIR=%CD%\.gh-config"
 
+echo Marking this folder safe for Git...
+git config --global --add safe.directory "%CD%"
+if errorlevel 1 (
+  echo.
+  echo Could not mark this folder as safe for Git.
+  echo Run this from Command Prompt, then try this publisher again:
+  echo git config --global --add safe.directory "%CD%"
+  pause
+  exit /b 1
+)
+
 echo Checking GitHub login...
 gh auth status >nul 2>nul
 if errorlevel 1 (
