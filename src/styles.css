@@ -161,6 +161,18 @@ main {
   justify-items: end;
 }
 
+.api-url-field {
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.api-url-field span {
+  color: #34463c;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
 .run-actions button {
   font-size: 1rem;
   justify-content: center;

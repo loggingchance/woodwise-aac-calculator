@@ -39,6 +39,30 @@ The static front-door PIN is checked in the browser with a SHA-256 hash. The lau
 npm test
 ```
 
+## Local API
+
+The browser app submits FVS runs to an API URL. For local testing:
+
+```bash
+npm run server
+```
+
+Or double-click:
+
+```text
+start-local-app.cmd
+```
+
+Then set the app API URL to:
+
+```text
+http://127.0.0.1:8787
+```
+
+The API validates projects and stores run requests. It will not claim an official FVS run unless `AAC_FVS_NE_PATH` points to the official Northeast FVS executable.
+
+Sample strata CSV is available at `samples/northern-hardwood-sample-strata.csv`.
+
 ## Backend Requirements Still Pending
 
 The production backend must verify the shared PIN, run official Northeast FVS, generate FVS CSV/SQLite/key files, parse official output, create the branded PDF, and assemble the diagnostic run package. Secrets such as `AAC_APP_PIN` must stay on the server.

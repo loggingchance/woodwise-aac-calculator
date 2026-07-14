@@ -16,13 +16,14 @@ import {
 import type { PropertyInfo, Stratum } from "./types/project";
 
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
-const apiBaseUrl = import.meta.env.VITE_AAC_API_URL?.replace(/\/$/, "") || "";
+const configuredApiBaseUrl = import.meta.env.VITE_AAC_API_URL?.replace(/\/$/, "") || "";
 
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [property, setProperty] = useState<PropertyInfo>(defaultProperty);
   const [strata, setStrata] = useState<Stratum[]>([createStratum(1), { ...createStratum(2), id: crypto.randomUUID(), name: "Softwood inclusion", forestCoverTypeId: "saf-22", acres: 220, meanDbh: 10, basalArea: 110 }]);
   const [csvDraft, setCsvDraft] = useState("");
+  const [apiUrl, setApiUrl] = useState(() => localStorage.getItem("woodwise-aac-api-url") || configuredApiBaseUrl);
   const [runState, setRunState] = useState<"idle" | "submitting" | "submitted" | "blocked" | "error">("idle");
   const [runMessage, setRunMessage] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -38,17 +39,20 @@ function App() {
       return;
     }
 
-    if (!apiBaseUrl) {
+    const runApiUrl = apiUrl.trim().replace(/\/$/, "");
+
+    if (!runApiUrl) {
       setRunState("blocked");
-      setRunMessage("No Northeast FVS API is configured yet. Set VITE_AAC_API_URL during build, then this button will submit the project to the backend /runs endpoint.");
+      setRunMessage("Enter the Northeast FVS API URL before submitting a run.");
       return;
     }
 
+    localStorage.setItem("woodwise-aac-api-url", runApiUrl);
     setRunState("submitting");
     setRunMessage("Submitting project to the Northeast FVS service...");
 
     try {
-      const response = await fetch(`${apiBaseUrl}/runs`, {
+      const response = await fetch(`${runApiUrl}/runs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -107,11 +111,15 @@ function App() {
           <p>
             Submit the current property and strata to the official FVS backend, then return the AAC report, PDF, and run package.
           </p>
-          <span className={`run-status ${apiBaseUrl ? "ready" : "blocked"}`}>
-            {apiBaseUrl ? `API configured: ${apiBaseUrl}` : "FVS API not configured yet"}
+          <span className={`run-status ${apiUrl.trim() ? "ready" : "blocked"}`}>
+            {apiUrl.trim() ? "FVS API URL ready" : "FVS API URL needed"}
           </span>
         </div>
         <div className="run-actions">
+          <label className="api-url-field">
+            <span>FVS API URL</span>
+            <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} placeholder="http://127.0.0.1:8787" />
+          </label>
           <button disabled={runState === "submitting"} onClick={() => void runFvsAnalysis()}>
             <Play size={18} /> {runState === "submitting" ? "Submitting" : "Run FVS analysis"}
           </button>
@@ -257,7 +265,7 @@ function App() {
         <SectionHeader title="Diagnostics" kicker="No secrets shown" />
         <dl>
           <div><dt>Frontend version</dt><dd>0.1.0 foundation</dd></div>
-          <div><dt>API URL</dt><dd>{apiBaseUrl || "Not configured"}</dd></div>
+          <div><dt>API URL</dt><dd>{apiUrl || "Not configured"}</dd></div>
           <div><dt>Health status</dt><dd>Backend pending</dd></div>
           <div><dt>FVS variant</dt><dd>NE required</dd></div>
           <div><dt>FVS runtime</dt><dd>Unavailable in browser-only build</dd></div>

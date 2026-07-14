@@ -1,0 +1,6 @@
+name,acres,forestCoverTypeId,siteClass,basalArea,meanDbh,meanDbhBasis,operablePercent,structure,notes
+Northern hardwood matrix,520,saf-25,2,92,12.4,unknown,88,uneven-aged,Sugar maple-beech-yellow birch dominant
+Mixed white pine hemlock,180,saf-22,2,118,13.8,qmd,82,mixed/unknown,Softwood inclusion on benches and ravines
+Red maple lowland,140,saf-108,3,84,10.6,unknown,65,mixed/unknown,Wetter ground with moderate operability
+Oak hardwood ridge,110,saf-55,2,78,14.2,qmd,90,two-aged,Northern red oak component on drier ridges
+Old field white pine,50,plantation-eastern-white-pine,1,132,11.8,qmd,95,even-aged,Plantation-origin pine block
