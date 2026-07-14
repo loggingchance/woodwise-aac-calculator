@@ -362,6 +362,11 @@ td {
   font-weight: 800;
 }
 
+.csv-import p {
+  color: var(--muted);
+  margin: 0.6rem 0 0;
+}
+
 .csv-import textarea {
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   margin: 0.8rem 0;

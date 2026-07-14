@@ -225,8 +225,12 @@ function App() {
 
         <details className="csv-import">
           <summary>Paste strata CSV</summary>
-          <textarea value={csvDraft} onChange={(event) => setCsvDraft(event.target.value)} placeholder={strataToCsv(strata)} />
-          <button onClick={() => setStrata(csvToStrata(csvDraft))}><Upload size={18} /> Import pasted CSV</button>
+          <p>Paste rows copied from Excel or a CSV file. Importing replaces the current strata table.</p>
+          <textarea value={csvDraft} onChange={(event) => setCsvDraft(event.target.value)} placeholder="Paste strata rows here" />
+          <div className="button-row">
+            <button disabled={!csvDraft.trim()} onClick={() => { setStrata(csvToStrata(csvDraft)); setCsvDraft(""); }}><Upload size={18} /> Import pasted CSV</button>
+            <button className="ghost-button" disabled={!csvDraft} onClick={() => setCsvDraft("")}>Clear paste box</button>
+          </div>
         </details>
       </section>
 
