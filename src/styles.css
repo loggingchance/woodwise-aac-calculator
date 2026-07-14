@@ -352,6 +352,33 @@ td {
   min-width: 220px;
 }
 
+.empty-strata {
+  background: #fbf7ec;
+  text-align: center;
+}
+
+.empty-strata strong,
+.empty-strata span {
+  display: block;
+}
+
+.empty-strata strong {
+  color: var(--forest);
+  font-size: 1.05rem;
+  margin-bottom: 0.3rem;
+}
+
+.empty-strata span {
+  color: var(--muted);
+  margin-bottom: 0.8rem;
+}
+
+.table-footer-actions {
+  border: 1px solid var(--line);
+  border-top: 0;
+  padding: 0.75rem;
+}
+
 .csv-import {
   margin-top: 1rem;
 }

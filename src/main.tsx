@@ -22,7 +22,7 @@ const configuredApiBaseUrl = import.meta.env.VITE_AAC_API_URL?.replace(/\/$/, ""
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [property, setProperty] = useState<PropertyInfo>(defaultProperty);
-  const [strata, setStrata] = useState<Stratum[]>([createStratum(1), { ...createStratum(2), id: crypto.randomUUID(), name: "Softwood inclusion", forestCoverTypeId: "saf-22", acres: 220, meanDbh: 10, basalArea: 110 }]);
+  const [strata, setStrata] = useState<Stratum[]>([]);
   const [csvDraft, setCsvDraft] = useState("");
   const [apiUrl, setApiUrl] = useState(() => localStorage.getItem("woodwise-aac-api-url") || configuredApiBaseUrl);
   const [runState, setRunState] = useState<"idle" | "submitting" | "submitted" | "blocked" | "error">("idle");
@@ -166,7 +166,7 @@ function App() {
         <div className="toolbar">
           <SectionHeader title="Forest Strata" kicker={`${strata.length} strata, ${totals.modeledAcres.toLocaleString()} modeled acres`} />
           <div className="button-row">
-            <button onClick={() => setStrata([...strata, createStratum(strata.length + 1)])}><Plus size={18} /> Add</button>
+            <button onClick={() => setStrata([...strata, createStratum(strata.length + 1)])}><Plus size={18} /> Add stratum row</button>
             <button onClick={() => setStrata(csvToStrata(sampleStrataCsv))}><Upload size={18} /> Load sample</button>
             <button onClick={() => download("woodwise-strata.csv", strataToCsv(strata), "text/csv")}><Download size={18} /> CSV</button>
             <button onClick={() => download("woodwise-project.json", JSON.stringify({ property, strata }, null, 2), "application/json")}><FileJson size={18} /> JSON</button>
@@ -192,6 +192,15 @@ function App() {
               </tr>
             </thead>
             <tbody>
+              {strata.length === 0 && (
+                <tr>
+                  <td className="empty-strata" colSpan={10}>
+                    <strong>No forest strata entered yet.</strong>
+                    <span>Add a row, load the sample data, or paste rows from a spreadsheet below.</span>
+                    <button onClick={() => setStrata([createStratum(1)])}><Plus size={18} /> Add first stratum row</button>
+                  </td>
+                </tr>
+              )}
               {strata.map((stratum) => (
                 <tr key={stratum.id}>
                   <td><input value={stratum.name} onChange={(e) => updateStratum(stratum.id, { name: e.target.value }, strata, setStrata)} /></td>
@@ -222,6 +231,12 @@ function App() {
             </tbody>
           </table>
         </div>
+
+        {strata.length > 0 && (
+          <div className="table-footer-actions">
+            <button onClick={() => setStrata([...strata, createStratum(strata.length + 1)])}><Plus size={18} /> Add another stratum row</button>
+          </div>
+        )}
 
         <details className="csv-import">
           <summary>Paste strata CSV</summary>
