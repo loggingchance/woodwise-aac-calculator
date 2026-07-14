@@ -176,7 +176,7 @@ function App() {
           <img src={assetPath("branding/woodwise-forestry-logo.png")} alt="WoodWise Forestry logo" />
           <div>
             <h1>WoodWise Forestry Annual Allowable Cut Analysis</h1>
-            <p>{property.propertyName} · Inventory {property.inventoryYear} · Analysis date {new Date().toLocaleDateString()}</p>
+            <p>{property.propertyName} - Inventory {property.inventoryYear} - Analysis date {new Date().toLocaleDateString()}</p>
           </div>
         </div>
         <div className="metric-grid">
@@ -237,17 +237,25 @@ function PinScreen({ onEnter }: { onEnter: () => void }) {
 
   return (
     <main className="pin-screen">
-      <div className="pin-masthead" style={{ backgroundImage: `url(${assetPath("branding/woodwise-aac-masthead.png")})` }} role="img" aria-label="WoodWise Forestry AAC Calculator masthead" />
-      <section className="pin-panel">
-        <img src={assetPath("branding/woodwise-forestry-logo.png")} alt="WoodWise Forestry logo" />
-        <h1>WoodWise Forestry AAC Calculator</h1>
-        <p>Enter the shared WoodWise access PIN to open the calculator.</p>
-        <label className="field">
-          <span>Shared PIN</span>
-          <input type="password" value={pin} onChange={(event) => setPin(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void submitPin(); }} />
-        </label>
-        {error && <p className="pin-error" role="alert">{error}</p>}
-        <button disabled={!pin || checking} onClick={() => void submitPin()}><ShieldCheck size={18} /> {checking ? "Checking" : "Enter calculator"}</button>
+      <section className="pin-hero" aria-label="WoodWise Forestry AAC Calculator">
+        <img src={assetPath("branding/woodwise-aac-masthead.png")} alt="WoodWise Forestry AAC Calculator masthead" />
+      </section>
+      <section className="pin-access" aria-label="Calculator access">
+        <div className="pin-panel">
+          <div className="pin-lockup">
+            <img src={assetPath("branding/woodwise-forestry-logo.png")} alt="WoodWise Forestry logo" />
+            <div>
+              <h1>Secure access</h1>
+              <p>Enter the shared WoodWise PIN to open the calculator.</p>
+            </div>
+          </div>
+          <label className="field">
+            <span>Shared PIN</span>
+            <input type="password" inputMode="numeric" autoComplete="current-password" value={pin} onChange={(event) => setPin(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void submitPin(); }} />
+          </label>
+          {error && <p className="pin-error" role="alert">{error}</p>}
+          <button disabled={!pin || checking} onClick={() => void submitPin()}><ShieldCheck size={18} /> {checking ? "Checking" : "Enter calculator"}</button>
+        </div>
       </section>
     </main>
   );

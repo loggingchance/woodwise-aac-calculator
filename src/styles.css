@@ -365,63 +365,106 @@ td {
 }
 
 .pin-screen {
-  align-items: stretch;
-  background: var(--deep);
+  align-items: start;
+  background:
+    linear-gradient(180deg, rgba(5, 41, 31, 0) 0%, rgba(5, 41, 31, 0.94) 58%),
+    var(--deep);
   display: grid;
-  grid-template-rows: minmax(240px, 42vh) auto;
+  grid-template-rows: auto 1fr;
   justify-items: center;
   min-height: 100vh;
   padding: 0;
 }
 
-.pin-masthead {
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+.pin-hero {
+  background: var(--deep);
   border-bottom: 3px solid var(--gold);
-  min-height: 240px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.26);
+  overflow: hidden;
+  width: 100%;
+}
+
+.pin-hero img {
+  display: block;
+  height: clamp(190px, 31vw, 335px);
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
+}
+
+.pin-access {
+  align-items: start;
+  display: grid;
+  justify-items: center;
+  padding: clamp(1.2rem, 4vw, 2.5rem) 1rem 2.5rem;
   width: 100%;
 }
 
 .pin-panel {
-  background: #fffdf7;
+  background: linear-gradient(180deg, #fffdf7 0%, #f8f2e4 100%);
   border: 2px solid var(--gold);
   border-radius: 8px;
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
-  margin: -4rem 1rem 2rem;
-  max-width: 560px;
-  padding: 1.5rem 1.75rem;
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.34);
+  max-width: 680px;
+  padding: clamp(1.1rem, 3vw, 1.45rem);
   position: relative;
-  text-align: center;
-  width: min(calc(100% - 2rem), 560px);
+  text-align: left;
+  width: min(100%, 680px);
 }
 
-.pin-panel img {
+.pin-lockup {
+  align-items: center;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 84px minmax(0, 1fr);
+  margin-bottom: 1rem;
+}
+
+.pin-lockup img {
   display: block;
-  height: 104px;
-  margin: 0 auto 0.55rem;
+  height: 84px;
   object-fit: contain;
-  width: 104px;
+  width: 84px;
 }
 
-.pin-panel h1 {
+.pin-lockup h1 {
   color: var(--forest);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.04;
-  margin: 0.2rem 0 0.85rem;
+  font-size: clamp(1.7rem, 3vw, 2.25rem);
+  line-height: 1;
+  margin: 0;
 }
 
-.pin-panel p {
+.pin-lockup p {
   color: var(--muted);
   font-size: 1rem;
-  margin: 0 auto;
-  max-width: 420px;
+  line-height: 1.45;
+  margin: 0.35rem 0 0;
 }
 
 .pin-panel .field {
   margin: 1rem 0;
   text-align: left;
+}
+
+.pin-panel input {
+  border: 2px solid #23382e;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  min-height: 48px;
+}
+
+.pin-panel input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(183, 149, 74, 0.22);
+  outline: none;
+}
+
+.pin-panel button {
+  font-size: 1rem;
+  justify-content: center;
+  min-height: 46px;
+  min-width: 180px;
 }
 
 .pin-error {
@@ -449,5 +492,14 @@ td {
 
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .pin-lockup {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .pin-lockup img {
+    height: 64px;
+    width: 64px;
   }
 }
