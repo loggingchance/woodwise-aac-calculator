@@ -20,6 +20,26 @@ import acreageTestStrataCsv from "../samples/woodwise-52374-acre-test-strata.csv
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 const configuredApiBaseUrl = import.meta.env.VITE_AAC_API_URL?.replace(/\/$/, "") || "";
 
+interface FvsAggregateRow {
+  year: number;
+  acres: number;
+  treesPerAcre: number;
+  basalAreaFt2PerAcre: number;
+  totalVolumeCuFt: number;
+  merchantableVolumeCuFt: number;
+  totalVolumeCuFtPerAcre: number;
+  merchantableVolumeCuFtPerAcre: number;
+}
+
+interface FvsRunResult {
+  run_id?: string;
+  id?: string;
+  status?: string;
+  message?: string;
+  run_package_path?: string;
+  aggregate?: FvsAggregateRow[];
+}
+
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [property, setProperty] = useState<PropertyInfo>(defaultProperty);
@@ -28,6 +48,7 @@ function App() {
   const [apiUrl, setApiUrl] = useState(() => localStorage.getItem("woodwise-aac-api-url") || configuredApiBaseUrl);
   const [runState, setRunState] = useState<"idle" | "submitting" | "submitted" | "blocked" | "error">("idle");
   const [runMessage, setRunMessage] = useState("");
+  const [runResult, setRunResult] = useState<FvsRunResult | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const messages = useMemo(() => validateProject(property, strata), [property, strata]);
   const metrics = useMemo(() => syntheticMetrics(strata), [strata]);
@@ -38,6 +59,7 @@ function App() {
     if (hardErrorCount > 0) {
       setRunState("blocked");
       setRunMessage("Fix validation errors before submitting an FVS run.");
+      setRunResult(null);
       return;
     }
 
@@ -45,13 +67,15 @@ function App() {
 
     if (!runApiUrl) {
       setRunState("blocked");
-      setRunMessage("The GitHub deployment does not have a Northeast FVS API URL configured yet. Set VITE_AAC_API_URL in the repository variables before production use.");
+      setRunMessage("No online Northeast FVS API URL is configured. Set VITE_AAC_API_URL to the hosted WoodWise FVS API address, then redeploy the GitHub page.");
+      setRunResult(null);
       return;
     }
 
     localStorage.setItem("woodwise-aac-api-url", runApiUrl);
     setRunState("submitting");
     setRunMessage("Submitting project to the Northeast FVS service...");
+    setRunResult(null);
 
     try {
       const response = await fetch(`${runApiUrl}/runs`, {
@@ -65,17 +89,20 @@ function App() {
         })
       });
 
+      const result = (await response.json()) as FvsRunResult & { detail?: string };
+
       if (!response.ok) {
-        throw new Error(`FVS API returned ${response.status}`);
+        throw new Error(result.message || result.detail || `FVS API returned ${response.status}`);
       }
 
-      const result = (await response.json()) as { run_id?: string; id?: string; status?: string };
       const runId = result.run_id || result.id || "submitted";
       setRunState("submitted");
-      setRunMessage(`Run ${runId} submitted. Status: ${result.status || "pending"}.`);
+      setRunResult(result);
+      setRunMessage(result.message || `Run ${runId} complete. Status: ${result.status || "complete"}.`);
     } catch (error) {
       setRunState("error");
-      setRunMessage(error instanceof Error ? error.message : "The FVS run could not be submitted.");
+      setRunResult(null);
+      setRunMessage(error instanceof Error ? error.message : "The online FVS API did not return results.");
     }
   }
 
@@ -103,24 +130,24 @@ function App() {
       </nav>
 
       <section className="status-band">
-        <StatusPill tone="warn" label="Foundation build" />
-        <span>Official Northeast FVS backend is not connected. Preview values are labeled and kept separate from real model output.</span>
+        <StatusPill tone={configuredApiBaseUrl ? "ok" : "warn"} label={configuredApiBaseUrl ? "Online FVS configured" : "Online FVS API needed"} />
+        <span>{configuredApiBaseUrl ? "Runs are sent to the configured hosted Northeast FVS API." : "Set the hosted WoodWise FVS API URL in GitHub before this public page can run official FVS."}</span>
       </section>
 
       <section className="run-panel" aria-label="Run FVS analysis">
         <div>
           <h2>Run Northeast FVS Analysis</h2>
           <p>
-            Submit the current property and strata to the configured official FVS API, then return the AAC report, PDF, and run package.
+            Submit the current property and strata to the hosted official Northeast FVS API, then return the FVS report results.
           </p>
           <span className={`run-status ${apiUrl.trim() ? "ready" : "blocked"}`}>
-            {apiUrl.trim() ? "FVS API URL ready" : "FVS API URL needed"}
+            {apiUrl.trim() ? "Online FVS API URL ready" : "Online FVS API URL needed"}
           </span>
         </div>
         <div className="run-actions">
           <label className="api-url-field">
-            <span>FVS API URL</span>
-            <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} placeholder="Set by GitHub variable VITE_AAC_API_URL" />
+            <span>Online FVS API URL</span>
+            <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} placeholder="https://your-hosted-fvs-api.example.com" />
           </label>
           <button disabled={runState === "submitting"} onClick={() => void runFvsAnalysis()}>
             <Play size={18} /> {runState === "submitting" ? "Submitting" : "Run FVS analysis"}
@@ -128,6 +155,47 @@ function App() {
           {runMessage && <p className={`run-message ${runState}`}>{runMessage}</p>}
         </div>
       </section>
+
+      {runResult?.aggregate?.length ? (
+        <section className="panel fvs-results">
+          <SectionHeader title="Official FVS Results" kicker={`Run ${runResult.run_id || runResult.id || ""}`} />
+          <div className="metric-grid">
+            <Metric label="Initial merchantable volume" value={`${number(runResult.aggregate[0].merchantableVolumeCuFtPerAcre)} cu ft/ac`} />
+            <Metric label="Initial basal area" value={`${number(runResult.aggregate[0].basalAreaFt2PerAcre)} sq ft/ac`} />
+            <Metric label="Final merchantable volume" value={`${number(runResult.aggregate[runResult.aggregate.length - 1].merchantableVolumeCuFtPerAcre)} cu ft/ac`} />
+            <Metric label="Final basal area" value={`${number(runResult.aggregate[runResult.aggregate.length - 1].basalAreaFt2PerAcre)} sq ft/ac`} />
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Acres</th>
+                <th>TPA</th>
+                <th>BA/ac</th>
+                <th>Total cu ft/ac</th>
+                <th>Merch cu ft/ac</th>
+                <th>Total cu ft</th>
+                <th>Merch cu ft</th>
+              </tr>
+            </thead>
+            <tbody>
+              {runResult.aggregate.map((row) => (
+                <tr key={row.year}>
+                  <td>{row.year}</td>
+                  <td>{number(row.acres)}</td>
+                  <td>{number(row.treesPerAcre)}</td>
+                  <td>{number(row.basalAreaFt2PerAcre)}</td>
+                  <td>{number(row.totalVolumeCuFtPerAcre)}</td>
+                  <td>{number(row.merchantableVolumeCuFtPerAcre)}</td>
+                  <td>{number(row.totalVolumeCuFt)}</td>
+                  <td>{number(row.merchantableVolumeCuFt)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {runResult.run_package_path && <p className="run-package-path">Run package: {runResult.run_package_path}</p>}
+        </section>
+      ) : null}
 
       <div className="layout">
         <section className="panel property-panel">
@@ -280,7 +348,7 @@ function App() {
         </div>
         <div className="report-copy">
           <p>Sawtimber uses International 1/4-inch rule language in the report. Roundwood, pulpwood, and firewood are tracked as green short tons with bark included. The two products are presented as a paired result and are never added together.</p>
-          <p>Sustainable repeated-harvest AAC and binding constraints require official Northeast FVS output. This build keeps those fields out of the recommendation until the backend smoke test proves the runtime is official.</p>
+          <p>Sustainable repeated-harvest AAC and binding constraints require official Northeast FVS output from the hosted WoodWise FVS API.</p>
         </div>
       </section>
 

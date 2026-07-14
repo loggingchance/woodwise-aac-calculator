@@ -2,7 +2,7 @@
 
 Browser-based foundation for the WoodWise Forestry Annual Allowable Cut calculator, deployed from GitHub Pages.
 
-This app is being built in phases. The current foundation build includes WoodWise branding, PIN-entry UI, property inputs, configurable forest-cover choices, strata editing, CSV/JSON import and export, validation, a transparent synthetic-inventory audit preview, and a Northeast FVS API path for official local/server-side smoke runs.
+This app is being built in phases. The current foundation build includes WoodWise branding, PIN-entry UI, property inputs, configurable forest-cover choices, strata editing, CSV/JSON import and export, validation, a transparent synthetic-inventory audit preview, and a Northeast FVS API path for hosted official FVS runs.
 
 The GitHub Pages app is the user interface. Official USDA Forest Service Forest Vegetation Simulator calculations require a separate FVS API service because GitHub Pages cannot run native FVS executables or receive runtime `/runs` requests.
 
@@ -41,7 +41,7 @@ Set this repository variable before deploying production runs:
 VITE_AAC_API_URL=https://your-fvs-api.example.com
 ```
 
-The public GitHub Pages app will use that URL when the user clicks **Run FVS analysis**. Until the variable is set, the app keeps the API URL visible as a required configuration item and will not pretend to run FVS.
+The public GitHub Pages app will use that URL when the user clicks **Run FVS analysis**. Until the variable is set to an internet-accessible hosted API, the app keeps the API URL visible as a required configuration item and will not pretend to run FVS.
 
 ## FVS API Service
 
@@ -51,7 +51,7 @@ The `server/` folder contains the first API scaffold for:
 - `POST /projects/validate`
 - `POST /runs`
 
-That service is not hosted by GitHub Pages. It belongs on the Windows FVS machine or another server that can run the official Northeast FVS executable. Configure:
+That service is not hosted by GitHub Pages. It belongs on an internet-accessible Windows FVS host, such as a Google Compute Engine Windows VM, that can run the official Northeast FVS executable. Configure:
 
 ```text
 AAC_FVS_NE_PATH=
@@ -63,7 +63,9 @@ The API validates projects, generates representative FVS keyword/tree files from
 
 Sample strata CSVs are available at `samples/northern-hardwood-sample-strata.csv` and `samples/woodwise-52374-acre-test-strata.csv`.
 
-The 52,374-acre test sample has been run successfully through official Northeast FVS on the Codex workstation using the existing CARBINE-built `FVSne.exe`. The current backend model level is still a strata-level representative-stand smoke test, not a production tree-list calibration or treatment optimizer.
+The 52,374-acre test sample has been run successfully through official Northeast FVS using the backend run path. The current backend model level is still a strata-level representative-stand smoke test, not a production tree-list calibration or treatment optimizer.
+
+Hosted deployment instructions are in `docs/hosted-fvs-api.md`.
 
 ## Tests
 

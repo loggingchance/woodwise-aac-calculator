@@ -199,6 +199,13 @@ main {
   color: var(--forest);
 }
 
+.run-package-path {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0.75rem 0 0;
+  overflow-wrap: anywhere;
+}
+
 .layout {
   display: grid;
   gap: 1rem;

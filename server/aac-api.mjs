@@ -5,10 +5,10 @@ import { join, resolve } from "node:path";
 import { createServer } from "node:http";
 
 const port = Number(process.env.AAC_PORT || 8787);
+const host = process.env.AAC_HOST || "0.0.0.0";
 const allowedOrigins = (process.env.AAC_ALLOWED_ORIGINS || "*").split(",").map((item) => item.trim());
 const tempDir = resolve(process.env.AAC_TEMP_DIR || ".aac-runs");
-const discoveredFvsPath = "C:\\Users\\steve\\Documents\\Codex\\2026-05-30\\files-mentioned-by-the-user-carbine\\fvs-src\\ForestVegetationSimulator-main\\bin\\FVSne.exe";
-const fvsPath = process.env.AAC_FVS_NE_PATH || (existsSync(discoveredFvsPath) ? discoveredFvsPath : "");
+const fvsPath = process.env.AAC_FVS_NE_PATH || "";
 
 mkdirSync(tempDir, { recursive: true });
 
@@ -77,8 +77,8 @@ const server = createServer(async (request, response) => {
   }
 });
 
-server.listen(port, "127.0.0.1", () => {
-  console.log(`WoodWise AAC API listening at http://127.0.0.1:${port}`);
+server.listen(port, host, () => {
+  console.log(`WoodWise AAC API listening at http://${host}:${port}`);
   console.log(officialFvsAvailable() ? `Using official Northeast FVS at ${fvsPath}` : "Official Northeast FVS is not configured.");
 });
 
