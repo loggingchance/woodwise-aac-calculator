@@ -2,6 +2,7 @@ node_modules/
 dist/
 .npm-cache/
 .gh-config/
+.gh-cache/
 *.tsbuildinfo
 .env
 .env.*

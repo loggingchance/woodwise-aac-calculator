@@ -15,6 +15,8 @@ import {
 } from "./lib/forestry";
 import type { PropertyInfo, Stratum } from "./types/project";
 
+const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
+
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [property, setProperty] = useState<PropertyInfo>(defaultProperty);
@@ -32,12 +34,12 @@ function App() {
   return (
     <main>
       <header className="masthead">
-        <img src="/branding/woodwise-aac-masthead.png" alt="WoodWise Forestry AAC Calculator masthead" />
+        <img src={assetPath("branding/woodwise-aac-masthead.png")} alt="WoodWise Forestry AAC Calculator masthead" />
       </header>
 
       <nav className="topbar" aria-label="Application status">
         <div className="brand-lockup">
-          <img src="/branding/woodwise-forestry-logo.png" alt="WoodWise Forestry logo" />
+          <img src={assetPath("branding/woodwise-forestry-logo.png")} alt="WoodWise Forestry logo" />
           <div>
             <strong>WoodWise AAC App</strong>
             <span>Modeling engine: USDA Forest Service Forest Vegetation Simulator, Northeast variant</span>
@@ -171,7 +173,7 @@ function App() {
 
       <section className="report-section">
         <div className="report-header">
-          <img src="/branding/woodwise-forestry-logo.png" alt="WoodWise Forestry logo" />
+          <img src={assetPath("branding/woodwise-forestry-logo.png")} alt="WoodWise Forestry logo" />
           <div>
             <h1>WoodWise Forestry Annual Allowable Cut Analysis</h1>
             <p>{property.propertyName} · Inventory {property.inventoryYear} · Analysis date {new Date().toLocaleDateString()}</p>
@@ -235,9 +237,9 @@ function PinScreen({ onEnter }: { onEnter: () => void }) {
 
   return (
     <main className="pin-screen">
-      <img className="pin-masthead" src="/branding/woodwise-aac-masthead.png" alt="WoodWise Forestry AAC Calculator masthead" />
+      <div className="pin-masthead" style={{ backgroundImage: `url(${assetPath("branding/woodwise-aac-masthead.png")})` }} role="img" aria-label="WoodWise Forestry AAC Calculator masthead" />
       <section className="pin-panel">
-        <img src="/branding/woodwise-forestry-logo.png" alt="WoodWise Forestry logo" />
+        <img src={assetPath("branding/woodwise-forestry-logo.png")} alt="WoodWise Forestry logo" />
         <h1>WoodWise Forestry AAC Calculator</h1>
         <p>Enter the shared WoodWise access PIN to open the calculator.</p>
         <label className="field">
