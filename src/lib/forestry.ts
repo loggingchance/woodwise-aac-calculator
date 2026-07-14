@@ -130,8 +130,9 @@ export function reportTotals(property: PropertyInfo, strata: Stratum[], metrics:
 }
 
 export function strataToCsv(strata: Stratum[]): string {
-  const header = ["name", "acres", "forestCoverTypeId", "siteClass", "basalArea", "meanDbh", "meanDbhBasis", "operablePercent", "structure", "notes"];
-  const rows = strata.map((item) => header.map((key) => csvCell(String(item[key as keyof Stratum] ?? ""))).join(","));
+  const fields = ["name", "acres", "forestCoverTypeId", "siteClass", "basalArea", "meanDbh", "meanDbhBasis", "operablePercent", "structure", "notes"];
+  const header = ["stratumOrStand", "acres", "forestCoverTypeId", "siteClass", "basalArea", "meanDbh", "meanDbhBasis", "operablePercent", "structure", "notes"];
+  const rows = strata.map((item) => fields.map((key) => csvCell(String(item[key as keyof Stratum] ?? ""))).join(","));
   return [header.join(","), ...rows].join("\n");
 }
 
@@ -205,7 +206,10 @@ function normalizeHeader(header: string): string {
   const key = header.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
   const aliases: Record<string, string> = {
     stratum: "name",
+    stratumorstand: "name",
     stratumname: "name",
+    stand: "name",
+    standname: "name",
     name: "name",
     acres: "acres",
     acre: "acres",

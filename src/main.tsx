@@ -179,7 +179,7 @@ function App() {
           <table className="strata-table">
             <thead>
               <tr>
-                <th>Name</th>
+                <th>Stratum or stand</th>
                 <th>Acres</th>
                 <th>Forest cover type</th>
                 <th>Site</th>

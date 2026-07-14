@@ -29,7 +29,7 @@ describe("WoodWise foundation forestry utilities", () => {
 
   it("imports tab-delimited spreadsheet paste with friendly headers", () => {
     const pasted = [
-      "Stratum name\tAcres\tForest cover type\tSite class\tBA/ac\tMean DBH\tBasis\tOperable %\tStructure\tNotes",
+      "Stratum or stand\tAcres\tForest cover type\tSite class\tBA/ac\tMean DBH\tBasis\tOperable %\tStructure\tNotes",
       "Northern hardwood matrix\t520\tType 25 - sugar maple-beech-yellow birch\tSite 2\t92\t12.4\tunknown\t88\tuneven-aged\tSample"
     ].join("\n");
     const [imported] = csvToStrata(pasted);
