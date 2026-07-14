@@ -204,7 +204,7 @@ function App() {
   );
 }
 
-const defaultFrontPinHash = "c4edfe54f8d073ad6cc47bc161893c53b3b1b76692325da0f3ebf4479ffbc97b";
+const defaultFrontPinHash = "37ba3881108bf3e48180350246c5959b9481633d0cb1d8694fb141dc74e5fe79";
 const frontPinHash = import.meta.env.VITE_AAC_FRONT_PIN_HASH || defaultFrontPinHash;
 
 async function sha256Hex(value: string): Promise<string> {
