@@ -250,7 +250,7 @@ function PinScreen({ onEnter }: { onEnter: () => void }) {
             </div>
           </div>
           <label className="field">
-            <span>Shared PIN</span>
+            <span>Security code</span>
             <input type="password" inputMode="numeric" autoComplete="current-password" value={pin} onChange={(event) => setPin(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void submitPin(); }} />
           </label>
           {error && <p className="pin-error" role="alert">{error}</p>}
