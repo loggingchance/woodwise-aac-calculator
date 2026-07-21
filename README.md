@@ -38,7 +38,7 @@ The static front-door PIN is checked in the browser with a SHA-256 hash. The lau
 Set this repository variable before deploying production runs:
 
 ```text
-VITE_AAC_API_URL=https://your-fvs-api.example.com
+VITE_AAC_API_URL=https://your-woodwise-api.example.com
 ```
 
 The public GitHub Pages app will use that URL when the user clicks **Run FVS analysis**. Until the variable is set to an internet-accessible hosted API, the app keeps the API URL visible as a required configuration item and will not pretend to run FVS.
@@ -65,7 +65,7 @@ Sample strata CSVs are available at `samples/northern-hardwood-sample-strata.csv
 
 The 52,374-acre test sample has been run successfully through official Northeast FVS using the backend run path. The current backend model level is still a strata-level representative-stand smoke test, not a production tree-list calibration or treatment optimizer.
 
-Hosted deployment instructions are in `docs/hosted-fvs-api.md`.
+Hosted WoodWise API instructions are in `docs/woodwise-fvs-api.md`.
 
 ## Tests
 

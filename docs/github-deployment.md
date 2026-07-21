@@ -19,11 +19,11 @@ GitHub Pages cannot run the official Northeast FVS executable and cannot act as 
 Set these in GitHub under **Settings -> Secrets and variables -> Actions -> Variables**:
 
 ```text
-VITE_AAC_API_URL=https://your-fvs-api.example.com
+VITE_AAC_API_URL=https://your-woodwise-api.example.com
 VITE_AAC_FRONT_PIN_HASH=37ba3881108bf3e48180350246c5959b9481633d0cb1d8694fb141dc74e5fe79
 ```
 
-`VITE_AAC_API_URL` is the important one for the run button. The default front security code is `8675309`.
+`VITE_AAC_API_URL` is the important one for the run button. It must point to the separate WoodWise FVS API, not CARBINE. The default front security code is `8675309`.
 
 ## Sample CSV
 

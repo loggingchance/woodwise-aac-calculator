@@ -13,7 +13,6 @@ import {
   syntheticMetrics,
   validateProject
 } from "./lib/forestry";
-import { runHostedFvsProject, type FvsAggregateRow, type HostedFvsRunResult } from "./lib/hostedFvs";
 import type { PropertyInfo, Stratum } from "./types/project";
 import sampleStrataCsv from "../samples/northern-hardwood-sample-strata.csv?raw";
 import acreageTestStrataCsv from "../samples/woodwise-52374-acre-test-strata.csv?raw";
@@ -21,9 +20,24 @@ import acreageTestStrataCsv from "../samples/woodwise-52374-acre-test-strata.csv
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 const configuredApiBaseUrl = import.meta.env.VITE_AAC_API_URL?.replace(/\/$/, "") || "";
 
-interface FvsDisplayResult extends HostedFvsRunResult {
+interface FvsAggregateRow {
+  year: number;
+  acres: number;
+  treesPerAcre: number;
+  basalAreaFt2PerAcre: number;
+  totalVolumeCuFt: number;
+  merchantableVolumeCuFt: number;
+  totalVolumeCuFtPerAcre: number;
+  merchantableVolumeCuFtPerAcre: number;
+}
+
+interface FvsDisplayResult {
+  run_id?: string;
   id?: string;
+  status?: string;
+  message?: string;
   run_package_path?: string;
+  aggregate?: FvsAggregateRow[];
 }
 
 function App() {
@@ -64,9 +78,24 @@ function App() {
     setRunResult(null);
 
     try {
-      const result = await runHostedFvsProject(runApiUrl, property, strata);
-      if (result.status !== "complete") throw new Error(result.message);
-      const runId = result.run_id || "submitted";
+      const response = await fetch(`${runApiUrl}/runs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          property,
+          strata,
+          projection: { variant: "NE", years: 40, cycleYears: 10 },
+          requestedOutputs: ["screen-report", "run-package"]
+        })
+      });
+
+      const result = (await response.json()) as FvsDisplayResult & { detail?: string };
+
+      if (!response.ok || result.status === "failed") {
+        throw new Error(result.message || result.detail || `WoodWise FVS API returned ${response.status}`);
+      }
+
+      const runId = result.run_id || result.id || "submitted";
       setRunState("submitted");
       setRunResult(result);
       setRunMessage(result.message || `Run ${runId} complete. Status: ${result.status || "complete"}.`);
@@ -118,7 +147,7 @@ function App() {
         <div className="run-actions">
           <label className="api-url-field">
             <span>Online FVS API URL</span>
-            <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} placeholder="https://your-hosted-fvs-api.example.com" />
+            <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} placeholder="https://your-woodwise-api.example.com" />
           </label>
           <button disabled={runState === "submitting"} onClick={() => void runFvsAnalysis()}>
             <Play size={18} /> {runState === "submitting" ? "Submitting" : "Run FVS analysis"}
