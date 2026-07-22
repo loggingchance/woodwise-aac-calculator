@@ -55,10 +55,13 @@ function App() {
   const [runState, setRunState] = useState<"idle" | "submitting" | "submitted" | "blocked" | "error">("idle");
   const [runMessage, setRunMessage] = useState("");
   const [runResult, setRunResult] = useState<FvsDisplayResult | null>(null);
+  const [completedRunSignature, setCompletedRunSignature] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const messages = useMemo(() => validateProject(property, strata), [property, strata]);
   const metrics = useMemo(() => syntheticMetrics(strata), [strata]);
   const totals = useMemo(() => reportTotals(property, strata, metrics), [property, strata, metrics]);
+  const inputSignature = useMemo(() => JSON.stringify({ property, strata }), [property, strata]);
+  const hasCurrentFvsResult = Boolean(runResult?.aggregate?.length && completedRunSignature === inputSignature);
   const hardErrorCount = messages.filter((message) => message.level === "error").length;
 
   async function runFvsAnalysis() {
@@ -82,6 +85,7 @@ function App() {
     setRunState("submitting");
     setRunMessage("Submitting project to the Northeast FVS service...");
     setRunResult(null);
+    setCompletedRunSignature("");
 
     try {
       const response = await fetch(`${runApiUrl}/runs`, {
@@ -104,11 +108,14 @@ function App() {
       const runId = result.run_id || result.id || "submitted";
       setRunState("submitted");
       setRunResult(result);
+      setCompletedRunSignature(inputSignature);
       setRunMessage(result.message || `Run ${runId} complete. Status: ${result.status || "complete"}.`);
     } catch (error) {
       setRunState("error");
       setRunResult(null);
-      setRunMessage(error instanceof Error ? error.message : "The online FVS API did not return results.");
+      setCompletedRunSignature("");
+      const message = error instanceof Error ? error.message : "The online FVS API did not return results.";
+      setRunMessage(message === "Failed to fetch" ? "Could not reach the WoodWise FVS API from this page. Check the API URL and allowed browser origin." : message);
     }
   }
 
@@ -162,7 +169,7 @@ function App() {
         </div>
       </section>
 
-      {runResult?.aggregate?.length ? (
+      {hasCurrentFvsResult && runResult?.aggregate?.length ? (
         <section className="panel fvs-results">
           <SectionHeader title="Official FVS Results" kicker={`Run ${runResult.run_id || runResult.id || ""}`} />
           <div className="metric-grid">
@@ -338,25 +345,32 @@ function App() {
         </table>
       </section>
 
-      <section className="report-section">
-        <div className="report-header">
-          <img src={assetPath("branding/woodwise-forestry-logo.png")} alt="WoodWise Forestry logo" />
-          <div>
-            <h1>WoodWise Forestry Annual Allowable Cut Analysis</h1>
-            <p>{property.propertyName} - Inventory {property.inventoryYear} - Analysis date {new Date().toLocaleDateString()}</p>
+      {hasCurrentFvsResult ? (
+        <section className="report-section">
+          <div className="report-header">
+            <img src={assetPath("branding/woodwise-forestry-logo.png")} alt="WoodWise Forestry logo" />
+            <div>
+              <h1>WoodWise Forestry Annual Allowable Cut Analysis</h1>
+              <p>{property.propertyName} - Inventory {property.inventoryYear} - Analysis date {new Date().toLocaleDateString()}</p>
+            </div>
           </div>
-        </div>
-        <div className="metric-grid">
-          <Metric label="Biological sawtimber AAC" value={`${number(totals.biologicalSawAac)} MBF/year`} />
-          <Metric label="Biological green-ton AAC" value={`${number(totals.biologicalGreenAac)} green tons/year`} />
-          <Metric label="Planning sawtimber preview" value={`${number(totals.planningSawAac)} MBF/year`} />
-          <Metric label="Planning green-ton preview" value={`${number(totals.planningGreenAac)} green tons/year`} />
-        </div>
-        <div className="report-copy">
-          <p>Sawtimber is reported in MBF using International 1/4-inch rule language. Green tons are a separate non-sawtimber product stream for roundwood, pulpwood, and firewood, reported as green short tons with bark included. Sawtimber MBF and green tons are paired outputs and are never added together.</p>
-          <p>Sustainable repeated-harvest AAC and binding constraints require official Northeast FVS output from the hosted WoodWise FVS API.</p>
-        </div>
-      </section>
+          <div className="metric-grid">
+            <Metric label="Biological sawtimber AAC" value={`${number(totals.biologicalSawAac)} MBF/year`} />
+            <Metric label="Biological green-ton AAC" value={`${number(totals.biologicalGreenAac)} green tons/year`} />
+            <Metric label="Planning sawtimber preview" value={`${number(totals.planningSawAac)} MBF/year`} />
+            <Metric label="Planning green-ton preview" value={`${number(totals.planningGreenAac)} green tons/year`} />
+          </div>
+          <div className="report-copy">
+            <p>Sawtimber is reported in MBF using International 1/4-inch rule language. Green tons are a separate non-sawtimber product stream for roundwood, pulpwood, and firewood, reported as green short tons with bark included. Sawtimber MBF and green tons are paired outputs and are never added together.</p>
+            <p>Sustainable repeated-harvest AAC and binding constraints require official Northeast FVS output from the hosted WoodWise FVS API.</p>
+          </div>
+        </section>
+      ) : (
+        <section className="panel pending-report">
+          <SectionHeader title="AAC report not generated yet" kicker="Run FVS first" />
+          <p>Load or edit strata, then click <strong>Run FVS analysis</strong>. The AAC report will appear only after the hosted Northeast FVS run returns results for the current inputs.</p>
+        </section>
+      )}
 
       <section className="panel diagnostics">
         <SectionHeader title="Diagnostics" kicker="No secrets shown" />
