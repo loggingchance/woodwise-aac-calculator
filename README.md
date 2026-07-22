@@ -11,8 +11,8 @@ The GitHub Pages app is the user interface. Official USDA Forest Service Forest 
 - Official biological engine: USDA Forest Service Forest Vegetation Simulator, Northeast variant.
 - Projection: 40 years with 10-year cycles.
 - Sawtimber output: MBF/year, International 1/4-inch rule.
-- Roundwood, pulpwood, and firewood output: green short tons/year, bark included.
-- Sawtimber and green tons are paired outputs and are never added into one numeric total.
+- Non-sawtimber roundwood, pulpwood, and firewood output: green short tons/year, bark included.
+- Sawtimber MBF and green tons are separate paired outputs and are never added into one numeric total.
 
 ## Local Development
 

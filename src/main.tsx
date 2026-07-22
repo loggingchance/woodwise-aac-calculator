@@ -347,7 +347,7 @@ function App() {
           <Metric label="Planning green-ton preview" value={`${number(totals.planningGreenAac)} green tons/year`} />
         </div>
         <div className="report-copy">
-          <p>Sawtimber uses International 1/4-inch rule language in the report. Roundwood, pulpwood, and firewood are tracked as green short tons with bark included. The two products are presented as a paired result and are never added together.</p>
+          <p>Sawtimber is reported in MBF using International 1/4-inch rule language. Green tons are a separate non-sawtimber product stream for roundwood, pulpwood, and firewood, reported as green short tons with bark included. Sawtimber MBF and green tons are paired outputs and are never added together.</p>
           <p>Sustainable repeated-harvest AAC and binding constraints require official Northeast FVS output from the hosted WoodWise FVS API.</p>
         </div>
       </section>
