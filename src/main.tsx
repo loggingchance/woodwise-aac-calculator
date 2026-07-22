@@ -18,7 +18,9 @@ import sampleStrataCsv from "../samples/northern-hardwood-sample-strata.csv?raw"
 import acreageTestStrataCsv from "../samples/woodwise-52374-acre-test-strata.csv?raw";
 
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
-const configuredApiBaseUrl = import.meta.env.VITE_AAC_API_URL?.replace(/\/$/, "") || "";
+const defaultApiBaseUrl = "https://woodwise.bicksapp.com";
+const legacyApiBaseUrls = new Set(["http://34.122.158.209:8788"]);
+const configuredApiBaseUrl = import.meta.env.VITE_AAC_API_URL?.replace(/\/$/, "") || defaultApiBaseUrl;
 
 interface FvsAggregateRow {
   year: number;
@@ -45,7 +47,10 @@ function App() {
   const [property, setProperty] = useState<PropertyInfo>(defaultProperty);
   const [strata, setStrata] = useState<Stratum[]>([]);
   const [csvDraft, setCsvDraft] = useState("");
-  const [apiUrl, setApiUrl] = useState(() => localStorage.getItem("woodwise-aac-api-url") || configuredApiBaseUrl);
+  const [apiUrl, setApiUrl] = useState(() => {
+    const savedUrl = localStorage.getItem("woodwise-aac-api-url")?.replace(/\/$/, "") || "";
+    return legacyApiBaseUrls.has(savedUrl) ? configuredApiBaseUrl : savedUrl || configuredApiBaseUrl;
+  });
   const [runState, setRunState] = useState<"idle" | "submitting" | "submitted" | "blocked" | "error">("idle");
   const [runMessage, setRunMessage] = useState("");
   const [runResult, setRunResult] = useState<FvsDisplayResult | null>(null);
@@ -147,7 +152,7 @@ function App() {
         <div className="run-actions">
           <label className="api-url-field">
             <span>Online FVS API URL</span>
-            <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} placeholder="https://your-woodwise-api.example.com" />
+            <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} placeholder={defaultApiBaseUrl} />
           </label>
           <button disabled={runState === "submitting"} onClick={() => void runFvsAnalysis()}>
             <Play size={18} /> {runState === "submitting" ? "Submitting" : "Run FVS analysis"}

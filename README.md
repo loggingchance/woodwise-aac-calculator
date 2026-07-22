@@ -38,10 +38,10 @@ The static front-door PIN is checked in the browser with a SHA-256 hash. The lau
 Set this repository variable before deploying production runs:
 
 ```text
-VITE_AAC_API_URL=https://your-woodwise-api.example.com
+VITE_AAC_API_URL=https://woodwise.bicksapp.com
 ```
 
-The public GitHub Pages app will use that URL when the user clicks **Run FVS analysis**. Until the variable is set to an internet-accessible hosted API, the app keeps the API URL visible as a required configuration item and will not pretend to run FVS.
+The public GitHub Pages app defaults to `https://woodwise.bicksapp.com` and will use `VITE_AAC_API_URL` if a different hosted API is configured. The app keeps the API URL visible so a tester can verify where **Run FVS analysis** is being sent.
 
 ## FVS API Service
 

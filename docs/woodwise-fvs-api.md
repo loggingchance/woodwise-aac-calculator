@@ -59,8 +59,10 @@ https://loggingchance.github.io
 Put HTTPS in front of the API host, then set the GitHub repository variable:
 
 ```text
-VITE_AAC_API_URL=https://your-woodwise-api-address
+VITE_AAC_API_URL=https://woodwise.bicksapp.com
 ```
+
+The app defaults to `https://woodwise.bicksapp.com`, so this variable is only needed if you move the hosted WoodWise API later.
 
 The WoodWise page calls:
 
@@ -75,7 +77,7 @@ The API saves raw FVS files and returns an acreage-weighted aggregate result.
 Check:
 
 ```text
-https://your-woodwise-api-address/health
+https://woodwise.bicksapp.com/health
 ```
 
 Expected:
