@@ -20,7 +20,8 @@ import acreageTestStrataCsv from "../samples/woodwise-52374-acre-test-strata.csv
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 const defaultApiBaseUrl = "https://woodwise.bicksapp.com";
 const legacyApiBaseUrls = new Set(["http://34.122.158.209:8788"]);
-const configuredApiBaseUrl = import.meta.env.VITE_AAC_API_URL?.replace(/\/$/, "") || defaultApiBaseUrl;
+const configuredApiUrl = import.meta.env.VITE_AAC_API_URL?.replace(/\/$/, "") || "";
+const configuredApiBaseUrl = configuredApiUrl && !legacyApiBaseUrls.has(configuredApiUrl) ? configuredApiUrl : defaultApiBaseUrl;
 
 interface FvsAggregateRow {
   year: number;

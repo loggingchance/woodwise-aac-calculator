@@ -53,7 +53,7 @@ if "%FVS_EXE%"=="" (
   exit /b 1
 )
 
-set "ORIGINS=https://loggingchance.github.io"
+set "ORIGINS=https://loggingchance.github.io,https://wwf.bicksapp.com"
 set "PORT=8788"
 set "ENV_FILE=%CD%\deploy\windows\woodwise-api.env.cmd"
 set "RUNNER=%CD%\deploy\windows\run-woodwise-api.cmd"
@@ -86,7 +86,7 @@ echo Install complete.
 echo.
 echo WoodWise API listens on this server at port %PORT%.
 echo Configure the public HTTPS address for WoodWise with:
-echo VITE_AAC_API_URL=https://your-woodwise-api-address
+echo VITE_AAC_API_URL=https://woodwise.bicksapp.com
 echo.
 echo Health check path:
 echo /health

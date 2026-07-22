@@ -7,7 +7,7 @@ if exist "%CD%\deploy\windows\woodwise-api.env.cmd" call "%CD%\deploy\windows\wo
 
 if "%AAC_HOST%"=="" set "AAC_HOST=0.0.0.0"
 if "%AAC_PORT%"=="" set "AAC_PORT=8788"
-if "%AAC_ALLOWED_ORIGINS%"=="" set "AAC_ALLOWED_ORIGINS=https://loggingchance.github.io"
+if "%AAC_ALLOWED_ORIGINS%"=="" set "AAC_ALLOWED_ORIGINS=https://loggingchance.github.io,https://wwf.bicksapp.com"
 
 echo Starting WoodWise FVS API...
 echo Host: %AAC_HOST%

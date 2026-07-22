@@ -5,7 +5,7 @@
 GitHub Pages hosts the WoodWise browser interface:
 
 ```text
-https://loggingchance.github.io/woodwise-aac-calculator/
+https://wwf.bicksapp.com/
 ```
 
 The Pages workflow builds the React app from `main`.
@@ -36,5 +36,5 @@ samples/northern-hardwood-sample-strata.csv
 The same file is also served with the Pages app at:
 
 ```text
-https://loggingchance.github.io/woodwise-aac-calculator/samples/northern-hardwood-sample-strata.csv
+https://wwf.bicksapp.com/samples/northern-hardwood-sample-strata.csv
 ```

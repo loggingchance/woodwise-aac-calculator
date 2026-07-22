@@ -51,7 +51,7 @@ Default API port:
 Default allowed browser origin:
 
 ```text
-https://loggingchance.github.io
+https://loggingchance.github.io,https://wwf.bicksapp.com
 ```
 
 ## Public URL

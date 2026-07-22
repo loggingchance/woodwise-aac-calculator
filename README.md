@@ -28,7 +28,7 @@ The repository includes a GitHub Actions workflow that runs tests, builds the ap
 Expected public URL after Pages is enabled:
 
 ```text
-https://loggingchance.github.io/woodwise-aac-calculator/
+https://wwf.bicksapp.com/
 ```
 
 The static front-door PIN is checked in the browser with a SHA-256 hash. The launch PIN is `8675309`; replace it by setting `VITE_AAC_FRONT_PIN_HASH` to a SHA-256 hex digest during build. This is not a substitute for the backend-verified PIN required before production FVS runs.
@@ -56,7 +56,7 @@ That service is not hosted by GitHub Pages. It belongs on an internet-accessible
 ```text
 AAC_FVS_NE_PATH=
 AAC_APP_PIN=
-AAC_ALLOWED_ORIGINS=https://loggingchance.github.io
+AAC_ALLOWED_ORIGINS=https://loggingchance.github.io,https://wwf.bicksapp.com
 ```
 
 The API validates projects, generates representative FVS keyword/tree files from each submitted stratum, runs each stratum through official Northeast FVS when `AAC_FVS_NE_PATH` points to the executable, stores the raw `.key`, `.tre`, `.out`, and `.sum` files, and returns an acreage-weighted aggregate report. If no executable is configured, it rejects the run instead of returning synthetic results.
