@@ -119,6 +119,37 @@ function App() {
     }
   }
 
+  function loadStarterSample() {
+    const sampleStrata = csvToStrata(sampleStrataCsv);
+    const sampleAcres = sampleStrata.reduce((sum, item) => sum + item.acres, 0);
+    setProperty({
+      ...defaultProperty,
+      propertyName: "WoodWise starter sample",
+      county: "Northeast FVS sample area",
+      totalOwnershipAcres: sampleAcres
+    });
+    setStrata(sampleStrata);
+    setRunResult(null);
+    setCompletedRunSignature("");
+    setRunState("idle");
+    setRunMessage("");
+  }
+
+  function loadAcreageTestSample() {
+    const testStrata = csvToStrata(acreageTestStrataCsv);
+    setProperty({
+      ...defaultProperty,
+      propertyName: "52,374-acre test property",
+      county: "Northeast FVS test area",
+      totalOwnershipAcres: testStrata.reduce((sum, item) => sum + item.acres, 0)
+    });
+    setStrata(testStrata);
+    setRunResult(null);
+    setCompletedRunSignature("");
+    setRunState("idle");
+    setRunMessage("");
+  }
+
   if (!authenticated) {
     return <PinScreen onEnter={() => setAuthenticated(true)} />;
   }
@@ -249,8 +280,8 @@ function App() {
           <SectionHeader title="Forest Strata" kicker={`${strata.length} strata, ${totals.modeledAcres.toLocaleString()} modeled acres`} />
           <div className="button-row">
             <button onClick={() => setStrata([...strata, createStratum(strata.length + 1)])}><Plus size={18} /> Add stratum row</button>
-            <button onClick={() => setStrata(csvToStrata(sampleStrataCsv))}><Upload size={18} /> Load sample</button>
-            <button onClick={() => setStrata(csvToStrata(acreageTestStrataCsv))}><Upload size={18} /> Load 52,374-acre test</button>
+            <button onClick={loadStarterSample}><Upload size={18} /> Load sample</button>
+            <button onClick={loadAcreageTestSample}><Upload size={18} /> Load 52,374-acre test</button>
             <button onClick={() => download("woodwise-strata.csv", strataToCsv(strata), "text/csv")}><Download size={18} /> CSV</button>
             <button onClick={() => download("woodwise-project.json", JSON.stringify({ property, strata }, null, 2), "application/json")}><FileJson size={18} /> JSON</button>
             <button onClick={() => fileRef.current?.click()}><Upload size={18} /> Upload JSON</button>

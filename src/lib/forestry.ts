@@ -31,10 +31,10 @@ export function createStratum(index = 1): Stratum {
 }
 
 export const defaultProperty: PropertyInfo = {
-  propertyName: "WoodWise demonstration tract",
+  propertyName: "",
   inventoryYear: new Date().getFullYear(),
-  county: "New York / Northeast FVS location pending",
-  totalOwnershipAcres: 1000,
+  county: "",
+  totalOwnershipAcres: 0,
   reservedAcres: 0,
   inventoryConfidenceDeduction: 0,
   harvestLossDeduction: 0,
@@ -78,10 +78,6 @@ export function validateProject(property: PropertyInfo, strata: Stratum[]): Vali
     if (stratum.operablePercent < 15) messages.push({ level: "warning", text: `${label}: stratum is nearly inoperable.`, target: stratum.id });
   });
 
-  messages.push({
-    level: "info",
-    text: "Official Northeast FVS is not connected in this foundation build; synthetic inventory previews are audit checks only."
-  });
   return messages;
 }
 
