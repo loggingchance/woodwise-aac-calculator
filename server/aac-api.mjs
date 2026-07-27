@@ -10,6 +10,8 @@ const allowedOrigins = (process.env.AAC_ALLOWED_ORIGINS || "*").split(",").map((
 const tempDir = resolve(process.env.AAC_TEMP_DIR || ".aac-runs");
 const fvsPath = process.env.AAC_FVS_NE_PATH || "";
 const maxRequestBodyBytes = Number(process.env.AAC_MAX_REQUEST_BODY_BYTES || 10_000_000);
+const adminToken = process.env.AAC_ADMIN_TOKEN || "";
+const restartCommand = process.env.AAC_RESTART_COMMAND || (process.platform === "win32" ? 'schtasks /End /TN "WoodWise FVS API" & schtasks /Run /TN "WoodWise FVS API"' : "");
 
 mkdirSync(tempDir, { recursive: true });
 
@@ -26,6 +28,26 @@ const server = createServer(async (request, response) => {
   try {
     if (request.method === "GET" && request.url === "/health") {
       sendJson(response, 200, healthPayload());
+      return;
+    }
+
+    if (request.method === "POST" && request.url === "/admin/restart-service") {
+      requireAdmin(request);
+
+      if (!restartCommand) {
+        sendJson(response, 503, {
+          status: "disabled",
+          message: "Admin restart is not configured on this API host.",
+          required_env: "AAC_RESTART_COMMAND"
+        });
+        return;
+      }
+
+      sendJson(response, 202, {
+        status: "restart_scheduled",
+        message: "WoodWise FVS API restart was accepted. Try the health check again in about 30 seconds."
+      });
+      scheduleServiceRestart();
       return;
     }
 
@@ -88,7 +110,7 @@ function setCors(response, origin) {
   const allowOrigin = allowedOrigins.includes("*") || allowedOrigins.includes(origin) ? origin || "*" : allowedOrigins[0] || "*";
   response.setHeader("Access-Control-Allow-Origin", allowOrigin);
   response.setHeader("Vary", "Origin");
-  response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-WoodWise-Admin-Token");
   response.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
 }
 
@@ -129,8 +151,35 @@ function healthPayload() {
     fvsRuntime: officialFvsAvailable() ? "official" : "unavailable",
     fvsPathConfigured: Boolean(fvsPath),
     fvsPath: officialFvsAvailable() ? fvsPath : undefined,
+    adminRestartConfigured: Boolean(adminToken && restartCommand),
     version: "0.2.0"
   };
+}
+
+function requireAdmin(request) {
+  if (!adminToken) {
+    throw Object.assign(new Error("Admin restart is not configured on this API host."), { statusCode: 503 });
+  }
+
+  const authorization = request.headers.authorization || "";
+  const bearerToken = authorization.toLowerCase().startsWith("bearer ") ? authorization.slice(7).trim() : "";
+  const headerToken = request.headers["x-woodwise-admin-token"] || "";
+  const providedToken = bearerToken || headerToken;
+
+  if (providedToken !== adminToken) {
+    throw Object.assign(new Error("Admin token was not accepted."), { statusCode: 401 });
+  }
+}
+
+function scheduleServiceRestart() {
+  setTimeout(() => {
+    const child = spawn("cmd.exe", ["/d", "/s", "/c", restartCommand], {
+      detached: true,
+      stdio: "ignore",
+      windowsHide: true
+    });
+    child.unref();
+  }, 1000);
 }
 
 function validateProject(project) {
@@ -458,7 +507,7 @@ function sanitizeFileName(value) {
 function uniquePointsByYear(points) {
   const byYear = new Map();
   for (const point of points) {
-    if (!byYear.has(point.year)) byYear.set(point.year, point);
+    if (!byYear.has(point.year)) byYear.set(point);
   }
   return [...byYear.values()];
 }
