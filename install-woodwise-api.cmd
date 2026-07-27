@@ -55,6 +55,8 @@ if "%FVS_EXE%"=="" (
 
 set "ORIGINS=https://loggingchance.github.io,https://wwf.bicksapp.com"
 set "PORT=8788"
+set "ADMIN_TOKEN=%AAC_ADMIN_TOKEN%"
+if "%ADMIN_TOKEN%"=="" for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "[guid]::NewGuid().ToString('N')"`) do set "ADMIN_TOKEN=%%A"
 set "ENV_FILE=%CD%\deploy\windows\woodwise-api.env.cmd"
 set "RUNNER=%CD%\deploy\windows\run-woodwise-api.cmd"
 set "TASK_ACTION=cmd.exe /c ""%RUNNER%"""
@@ -67,6 +69,7 @@ if not exist "%CD%\deploy\windows" mkdir "%CD%\deploy\windows"
   echo set "AAC_PORT=%PORT%"
   echo set "AAC_ALLOWED_ORIGINS=%ORIGINS%"
   echo set "AAC_FVS_NE_PATH=%FVS_EXE%"
+  echo set "AAC_ADMIN_TOKEN=%ADMIN_TOKEN%"
 ) > "%ENV_FILE%"
 
 echo Creating scheduled task...
@@ -85,6 +88,9 @@ echo.
 echo Install complete.
 echo.
 echo WoodWise API listens on this server at port %PORT%.
+echo Admin restart token:
+echo %ADMIN_TOKEN%
+echo.
 echo Configure the public HTTPS address for WoodWise with:
 echo VITE_AAC_API_URL=https://woodwise.bicksapp.com
 echo.
