@@ -19,9 +19,11 @@ import acreageTestStrataCsv from "../samples/woodwise-52374-acre-test-strata.csv
 
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 const defaultApiBaseUrl = "https://woodwise.bicksapp.com";
-const legacyApiBaseUrls = new Set(["http://34.122.158.209:8788"]);
+const unusableApiBaseUrls = new Set(["http://34.122.158.209:8788", "https://wwf.bicksapp.com", "https://loggingchance.github.io"]);
 const configuredApiUrl = import.meta.env.VITE_AAC_API_URL?.replace(/\/$/, "") || "";
-const configuredApiBaseUrl = configuredApiUrl && !legacyApiBaseUrls.has(configuredApiUrl) ? configuredApiUrl : defaultApiBaseUrl;
+const configuredApiBaseUrl = configuredApiUrl && !unusableApiBaseUrls.has(configuredApiUrl) ? configuredApiUrl : defaultApiBaseUrl;
+const healthCheckTimeoutMs = 15000;
+const runTimeoutMs = 180000;
 
 interface FvsAggregateRow {
   year: number;
@@ -43,6 +45,13 @@ interface FvsDisplayResult {
   aggregate?: FvsAggregateRow[];
 }
 
+interface FvsHealth {
+  reachable?: boolean;
+  ready?: boolean;
+  fvsRuntime?: string;
+  message?: string;
+}
+
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [property, setProperty] = useState<PropertyInfo>(defaultProperty);
@@ -50,11 +59,12 @@ function App() {
   const [csvDraft, setCsvDraft] = useState("");
   const [apiUrl, setApiUrl] = useState(() => {
     const savedUrl = localStorage.getItem("woodwise-aac-api-url")?.replace(/\/$/, "") || "";
-    return legacyApiBaseUrls.has(savedUrl) ? configuredApiBaseUrl : savedUrl || configuredApiBaseUrl;
+    return unusableApiBaseUrls.has(savedUrl) ? configuredApiBaseUrl : savedUrl || configuredApiBaseUrl;
   });
   const [runState, setRunState] = useState<"idle" | "submitting" | "submitted" | "blocked" | "error">("idle");
   const [runMessage, setRunMessage] = useState("");
   const [runResult, setRunResult] = useState<FvsDisplayResult | null>(null);
+  const [healthStatus, setHealthStatus] = useState("Not checked");
   const [completedRunSignature, setCompletedRunSignature] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const messages = useMemo(() => validateProject(property, strata), [property, strata]);
@@ -81,14 +91,30 @@ function App() {
       return;
     }
 
+    if (unusableApiBaseUrls.has(runApiUrl)) {
+      setRunState("blocked");
+      setRunMessage(`${runApiUrl} serves the browser app, not the WoodWise FVS API. Use the hosted API URL, currently expected to be ${defaultApiBaseUrl}.`);
+      setRunResult(null);
+      return;
+    }
+
     localStorage.setItem("woodwise-aac-api-url", runApiUrl);
     setRunState("submitting");
-    setRunMessage("Submitting project to the Northeast FVS service...");
+    setRunMessage("Checking the Northeast FVS service...");
     setRunResult(null);
     setCompletedRunSignature("");
 
     try {
-      const response = await fetch(`${runApiUrl}/runs`, {
+      const healthResponse = await fetchWithTimeout(`${runApiUrl}/health`, { method: "GET" }, healthCheckTimeoutMs);
+      const health = (await readJsonResponse(healthResponse)) as FvsHealth;
+      setHealthStatus(health.ready ? "Ready" : health.message || "Reachable, FVS not ready");
+
+      if (!healthResponse.ok || health.ready === false) {
+        throw new Error(health.message || `WoodWise FVS API health check returned ${healthResponse.status}.`);
+      }
+
+      setRunMessage("Submitting project to the Northeast FVS service...");
+      const response = await fetchWithTimeout(`${runApiUrl}/runs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -97,9 +123,9 @@ function App() {
           projection: { variant: "NE", years: 40, cycleYears: 10 },
           requestedOutputs: ["screen-report", "run-package"]
         })
-      });
+      }, runTimeoutMs);
 
-      const result = (await response.json()) as FvsDisplayResult & { detail?: string };
+      const result = (await readJsonResponse(response)) as FvsDisplayResult & { detail?: string };
 
       if (!response.ok || result.status === "failed") {
         throw new Error(result.message || result.detail || `WoodWise FVS API returned ${response.status}`);
@@ -115,7 +141,8 @@ function App() {
       setRunResult(null);
       setCompletedRunSignature("");
       const message = error instanceof Error ? error.message : "The online FVS API did not return results.";
-      setRunMessage(message === "Failed to fetch" ? "Could not reach the WoodWise FVS API from this page. Check the API URL and allowed browser origin." : message);
+      setHealthStatus("Not reachable");
+      setRunMessage(formatRunError(message, runApiUrl));
     }
   }
 
@@ -408,7 +435,7 @@ function App() {
         <dl>
           <div><dt>Frontend version</dt><dd>0.1.0 foundation</dd></div>
           <div><dt>API URL</dt><dd>{apiUrl || "Not configured"}</dd></div>
-          <div><dt>Health status</dt><dd>Backend pending</dd></div>
+          <div><dt>Health status</dt><dd>{healthStatus}</dd></div>
           <div><dt>FVS variant</dt><dd>NE required</dd></div>
           <div><dt>FVS runtime</dt><dd>Unavailable in browser-only build</dd></div>
           <div><dt>Configuration</dt><dd>Forest types 1.0; site crosswalk 0.1 unvalidated</dd></div>
@@ -514,6 +541,36 @@ function download(filename: string, content: string, type: string) {
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+async function readJsonResponse(response: Response) {
+  const text = await response.text();
+  if (!text) return {};
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { message: `WoodWise FVS API returned ${response.status} but did not return JSON.` };
+  }
+}
+
+function formatRunError(message: string, runApiUrl: string) {
+  if (message === "Failed to fetch") {
+    return `Could not reach the WoodWise FVS API at ${runApiUrl}. The API host is down, blocked by CORS, or not routed to the FVS service.`;
+  }
+  if (message === "The operation was aborted.") {
+    return `The WoodWise FVS API at ${runApiUrl} did not respond before the timeout. Check whether the API service is running and whether the FVS run is hanging.`;
+  }
+  return message;
 }
 
 function number(value: number) {

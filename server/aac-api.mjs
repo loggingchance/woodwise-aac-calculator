@@ -9,6 +9,7 @@ const host = process.env.AAC_HOST || "0.0.0.0";
 const allowedOrigins = (process.env.AAC_ALLOWED_ORIGINS || "*").split(",").map((item) => item.trim());
 const tempDir = resolve(process.env.AAC_TEMP_DIR || ".aac-runs");
 const fvsPath = process.env.AAC_FVS_NE_PATH || "";
+const maxRequestBodyBytes = Number(process.env.AAC_MAX_REQUEST_BODY_BYTES || 10_000_000);
 
 mkdirSync(tempDir, { recursive: true });
 
@@ -70,7 +71,8 @@ const server = createServer(async (request, response) => {
 
     sendJson(response, 404, { message: "Not found" });
   } catch (error) {
-    sendJson(response, 500, {
+    const statusCode = Number(error?.statusCode || 500);
+    sendJson(response, statusCode, {
       message: "The AAC API could not complete the request.",
       detail: error instanceof Error ? error.message : String(error)
     });
@@ -85,6 +87,7 @@ server.listen(port, host, () => {
 function setCors(response, origin) {
   const allowOrigin = allowedOrigins.includes("*") || allowedOrigins.includes(origin) ? origin || "*" : allowedOrigins[0] || "*";
   response.setHeader("Access-Control-Allow-Origin", allowOrigin);
+  response.setHeader("Vary", "Origin");
   response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   response.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
 }
@@ -97,14 +100,19 @@ function sendJson(response, status, payload) {
 function readJson(request) {
   return new Promise((resolveRead, rejectRead) => {
     let body = "";
+    let tooLarge = false;
     request.on("data", (chunk) => {
+      if (tooLarge) return;
       body += chunk;
-      if (body.length > 1_000_000) {
-        rejectRead(new Error("Request body is too large."));
-        request.destroy();
+      if (Buffer.byteLength(body) > maxRequestBodyBytes) {
+        tooLarge = true;
+        rejectRead(Object.assign(new Error(`Request body is too large. Limit is ${maxRequestBodyBytes} bytes.`), { statusCode: 413 }));
       }
     });
-    request.on("end", () => resolveRead(body ? JSON.parse(body) : {}));
+    request.on("end", () => {
+      if (tooLarge) return;
+      resolveRead(body ? JSON.parse(body) : {});
+    });
     request.on("error", rejectRead);
   });
 }
