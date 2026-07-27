@@ -42,6 +42,8 @@ It also writes service settings to:
 deploy\windows\woodwise-api.env.cmd
 ```
 
+The installer writes an admin restart token to that file and prints it once at install time. Keep that token private; the browser asks for it before it can restart the hosted FVS API.
+
 Default API port:
 
 ```text
@@ -71,6 +73,17 @@ POST /runs
 ```
 
 The API saves raw FVS files and returns an acreage-weighted aggregate result.
+
+## Admin Restart
+
+The browser app has a small Diagnostics > Service admin area for emergency service recovery. It calls:
+
+```text
+POST /admin/restart-service
+Authorization: Bearer <AAC_ADMIN_TOKEN>
+```
+
+The endpoint is disabled unless `AAC_ADMIN_TOKEN` is set on the API host. On Windows, the default restart command stops and starts the scheduled task named `WoodWise FVS API`. Set `AAC_RESTART_COMMAND` if a different service manager is used.
 
 ## Health Check
 
