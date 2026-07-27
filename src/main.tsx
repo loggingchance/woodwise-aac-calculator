@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Download, FileJson, FileText, LogOut, Play, Plus, ShieldCheck, Upload, AlertTriangle, CheckCircle2, Copy, Trash2 } from "lucide-react";
+import { Download, FileJson, FileText, LogOut, Play, Plus, RotateCw, ShieldCheck, Upload, AlertTriangle, CheckCircle2, Copy, Trash2 } from "lucide-react";
 import "./styles.css";
 import {
   createStratum,
@@ -51,6 +51,7 @@ interface FvsHealth {
   reachable?: boolean;
   ready?: boolean;
   fvsRuntime?: string;
+  adminRestartConfigured?: boolean;
   message?: string;
 }
 
@@ -67,6 +68,8 @@ function App() {
   const [runMessage, setRunMessage] = useState("");
   const [runResult, setRunResult] = useState<FvsDisplayResult | null>(null);
   const [healthStatus, setHealthStatus] = useState("Not checked");
+  const [adminState, setAdminState] = useState<"idle" | "checking" | "restarting" | "submitted" | "error">("idle");
+  const [adminMessage, setAdminMessage] = useState("");
   const [completedRunSignature, setCompletedRunSignature] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const messages = useMemo(() => validateProject(property, strata), [property, strata]);
@@ -145,6 +148,79 @@ function App() {
       const message = error instanceof Error ? error.message : "The online FVS API did not return results.";
       setHealthStatus("Not reachable");
       setRunMessage(formatRunError(message, runApiUrl));
+    }
+  }
+
+  async function checkFvsHealth() {
+    const runApiUrl = apiUrl.trim().replace(/\/$/, "");
+    if (!runApiUrl) {
+      setAdminState("error");
+      setAdminMessage("No online FVS API URL is configured.");
+      return;
+    }
+
+    setAdminState("checking");
+    setAdminMessage("Checking service health...");
+    try {
+      const response = await fetchWithTimeout(`${runApiUrl}/health`, { method: "GET" }, healthCheckTimeoutMs);
+      const health = (await readJsonResponse(response)) as FvsHealth;
+      setHealthStatus(health.ready ? "Ready" : health.message || "Reachable, FVS not ready");
+      setAdminState(response.ok ? "idle" : "error");
+      setAdminMessage(
+        response.ok
+          ? `Health check complete. Restart control is ${health.adminRestartConfigured ? "configured" : "not configured on the API host"}.`
+          : health.message || `Health check returned ${response.status}.`
+      );
+    } catch (error) {
+      setHealthStatus("Not reachable");
+      setAdminState("error");
+      const message = error instanceof Error ? error.message : "The online FVS API did not return health.";
+      setAdminMessage(formatRunError(message, runApiUrl));
+    }
+  }
+
+  async function restartFvsService() {
+    const runApiUrl = apiUrl.trim().replace(/\/$/, "");
+    if (!runApiUrl) {
+      setAdminState("error");
+      setAdminMessage("No online FVS API URL is configured.");
+      return;
+    }
+
+    let adminToken = sessionStorage.getItem("woodwise-aac-admin-token") || "";
+    if (!adminToken) {
+      adminToken = window.prompt("Admin restart token")?.trim() || "";
+    }
+
+    if (!adminToken) {
+      setAdminState("idle");
+      setAdminMessage("Restart cancelled.");
+      return;
+    }
+
+    sessionStorage.setItem("woodwise-aac-admin-token", adminToken);
+    setAdminState("restarting");
+    setAdminMessage("Requesting service restart...");
+
+    try {
+      const response = await fetchWithTimeout(`${runApiUrl}/admin/restart-service`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${adminToken}` }
+      }, healthCheckTimeoutMs);
+      const result = (await readJsonResponse(response)) as { message?: string; detail?: string };
+
+      if (!response.ok) {
+        if (response.status === 401) sessionStorage.removeItem("woodwise-aac-admin-token");
+        throw new Error(result.message || result.detail || `Restart request returned ${response.status}.`);
+      }
+
+      setAdminState("submitted");
+      setHealthStatus("Restart scheduled");
+      setAdminMessage(result.message || "Restart accepted. Wait about 30 seconds, then check health.");
+    } catch (error) {
+      setAdminState("error");
+      const message = error instanceof Error ? error.message : "The restart request failed.";
+      setAdminMessage(formatRunError(message, runApiUrl));
     }
   }
 
@@ -449,6 +525,18 @@ function App() {
           <div><dt>FVS runtime</dt><dd>Unavailable in browser-only build</dd></div>
           <div><dt>Configuration</dt><dd>Forest types 1.0; site crosswalk 0.1 unvalidated</dd></div>
         </dl>
+        <details className="admin-service">
+          <summary>Service admin</summary>
+          <div className="admin-actions">
+            <button disabled={adminState === "checking" || adminState === "restarting"} onClick={() => void checkFvsHealth()}>
+              <ShieldCheck size={18} /> Check health
+            </button>
+            <button disabled={adminState === "checking" || adminState === "restarting"} onClick={() => void restartFvsService()}>
+              <RotateCw size={18} /> Restart FVS API
+            </button>
+          </div>
+          {adminMessage && <p className={`admin-message ${adminState}`}>{adminMessage}</p>}
+        </details>
       </section>
     </main>
   );
