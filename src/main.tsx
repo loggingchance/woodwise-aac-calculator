@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Download, FileJson, LogOut, Play, Plus, ShieldCheck, Upload, AlertTriangle, CheckCircle2, Copy, Trash2 } from "lucide-react";
+import { Download, FileJson, FileText, LogOut, Play, Plus, ShieldCheck, Upload, AlertTriangle, CheckCircle2, Copy, Trash2 } from "lucide-react";
 import "./styles.css";
 import {
   createStratum,
@@ -42,6 +42,8 @@ interface FvsDisplayResult {
   status?: string;
   message?: string;
   run_package_path?: string;
+  model_level?: string;
+  caveat?: string;
   aggregate?: FvsAggregateRow[];
 }
 
@@ -412,6 +414,13 @@ function App() {
               <p>{property.propertyName} - Inventory {property.inventoryYear} - Analysis date {new Date().toLocaleDateString()}</p>
             </div>
           </div>
+          {runResult ? (
+            <div className="report-actions">
+              <button onClick={() => downloadReport(property, strata, totals, runResult)}>
+                <FileText size={18} /> Download report
+              </button>
+            </div>
+          ) : null}
           <div className="metric-grid">
             <Metric label="Biological sawtimber AAC" value={`${number(totals.biologicalSawAac)} MBF/year`} />
             <Metric label="Biological green-ton AAC" value={`${number(totals.biologicalGreenAac)} green tons/year`} />
@@ -541,6 +550,319 @@ function download(filename: string, content: string, type: string) {
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+function downloadReport(
+  property: PropertyInfo,
+  strata: Stratum[],
+  totals: ReturnType<typeof reportTotals>,
+  runResult: FvsDisplayResult
+) {
+  const filename = `${safeFilename(property.propertyName || "woodwise")}-aac-report.html`;
+  download(filename, buildReportHtml(property, strata, totals, runResult), "text/html");
+}
+
+function buildReportHtml(
+  property: PropertyInfo,
+  strata: Stratum[],
+  totals: ReturnType<typeof reportTotals>,
+  runResult: FvsDisplayResult
+) {
+  const analysisDate = new Date().toLocaleDateString();
+  const runId = runResult.run_id || runResult.id || "not reported";
+  const aggregate = runResult.aggregate || [];
+  const initial = aggregate[0];
+  const final = aggregate[aggregate.length - 1];
+  const logoUrl = new URL(assetPath("branding/woodwise-forestry-logo.png"), window.location.origin).href;
+  const mastheadUrl = new URL(assetPath("branding/woodwise-aac-masthead.png"), window.location.origin).href;
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${escapeHtml(property.propertyName || "WoodWise")} AAC Report</title>
+  <style>
+    :root {
+      --forest: #083f2d;
+      --deep: #05291f;
+      --gold: #b7954a;
+      --paper: #fffaf0;
+      --ink: #1d2a23;
+      --muted: #5f6d64;
+      --line: #d7cfb9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background: #f3f1e9;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+      margin: 0;
+    }
+    main {
+      background: var(--paper);
+      margin: 0 auto;
+      max-width: 1080px;
+      min-height: 100vh;
+    }
+    .masthead img {
+      display: block;
+      height: 170px;
+      object-fit: cover;
+      width: 100%;
+    }
+    .report-title {
+      align-items: center;
+      border-bottom: 3px solid var(--gold);
+      display: grid;
+      gap: 18px;
+      grid-template-columns: 84px 1fr;
+      padding: 24px 32px;
+    }
+    .report-title img { width: 84px; }
+    h1, h2 {
+      color: var(--forest);
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.12;
+      margin: 0;
+    }
+    h1 { font-size: 34px; }
+    h2 {
+      border-bottom: 1px solid var(--line);
+      font-size: 22px;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--muted);
+      margin: 6px 0 0;
+    }
+    section { padding: 22px 32px; }
+    .summary-grid, .metric-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .summary-card, .metric {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .summary-card span, .metric span {
+      color: var(--muted);
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .summary-card strong, .metric strong {
+      color: var(--forest);
+      display: block;
+      font-size: 20px;
+      margin-top: 5px;
+    }
+    table {
+      border-collapse: collapse;
+      font-size: 13px;
+      width: 100%;
+    }
+    th {
+      background: #ebe4d2;
+      color: #273b30;
+      font-size: 11px;
+      text-align: left;
+      text-transform: uppercase;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 7px;
+      vertical-align: top;
+    }
+    .note {
+      background: #fff5d9;
+      border-left: 4px solid var(--gold);
+      color: #493b1c;
+      margin: 12px 0 0;
+      padding: 10px 12px;
+    }
+    .footer {
+      border-top: 2px solid var(--gold);
+      color: var(--muted);
+      font-size: 12px;
+      padding: 18px 32px 28px;
+    }
+    @media print {
+      body { background: white; }
+      main { max-width: none; }
+      section { break-inside: avoid; }
+      .masthead img { height: 120px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="masthead"><img src="${mastheadUrl}" alt="WoodWise Forestry AAC Calculator masthead" /></div>
+    <header class="report-title">
+      <img src="${logoUrl}" alt="WoodWise Forestry logo" />
+      <div>
+        <h1>WoodWise Forestry Annual Allowable Cut Analysis</h1>
+        <p class="subtitle">${escapeHtml(property.propertyName || "Unnamed property")} - Inventory ${escapeHtml(String(property.inventoryYear))} - Analysis date ${escapeHtml(analysisDate)}</p>
+      </div>
+    </header>
+
+    <section>
+      <h2>Run Summary</h2>
+      <div class="summary-grid">
+        ${summaryCard("FVS run ID", runId)}
+        ${summaryCard("FVS status", runResult.status || "complete")}
+        ${summaryCard("Modeled acres", number(totals.modeledAcres))}
+        ${summaryCard("Operable acres", number(totals.operableAcres))}
+      </div>
+      <p class="note">This report was generated after a hosted official Northeast FVS run returned results for the current WoodWise project inputs.</p>
+    </section>
+
+    <section>
+      <h2>AAC Planning Summary</h2>
+      <div class="metric-grid">
+        ${summaryCard("Biological sawtimber AAC", `${number(totals.biologicalSawAac)} MBF/year`)}
+        ${summaryCard("Biological green-ton AAC", `${number(totals.biologicalGreenAac)} green tons/year`)}
+        ${summaryCard("Planning sawtimber preview", `${number(totals.planningSawAac)} MBF/year`)}
+        ${summaryCard("Planning green-ton preview", `${number(totals.planningGreenAac)} green tons/year`)}
+      </div>
+    </section>
+
+    <section>
+      <h2>Official FVS Results</h2>
+      <div class="summary-grid">
+        ${summaryCard("Initial merch volume", initial ? `${number(initial.merchantableVolumeCuFtPerAcre)} cu ft/ac` : "n/a")}
+        ${summaryCard("Final merch volume", final ? `${number(final.merchantableVolumeCuFtPerAcre)} cu ft/ac` : "n/a")}
+        ${summaryCard("Initial basal area", initial ? `${number(initial.basalAreaFt2PerAcre)} sq ft/ac` : "n/a")}
+        ${summaryCard("Final basal area", final ? `${number(final.basalAreaFt2PerAcre)} sq ft/ac` : "n/a")}
+      </div>
+      ${aggregateTable(aggregate)}
+    </section>
+
+    <section>
+      <h2>Property Inputs</h2>
+      <table>
+        <tbody>
+          ${propertyRow("Client or ownership", property.clientName)}
+          ${propertyRow("Analyst", property.analystName)}
+          ${propertyRow("County or FVS location area", property.county)}
+          ${propertyRow("Total ownership acres", number(property.totalOwnershipAcres))}
+          ${propertyRow("Reserved acres", number(property.reservedAcres))}
+          ${propertyRow("Inventory confidence deduction", `${number(property.inventoryConfidenceDeduction)}%`)}
+          ${propertyRow("Harvest-loss deduction", `${number(property.harvestLossDeduction)}%`)}
+          ${propertyRow("Desired inventory buildup", `${number(property.desiredInventoryBuildup)}%`)}
+          ${propertyRow("Notes", property.notes)}
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Forest Strata Submitted</h2>
+      ${strataTable(strata)}
+    </section>
+
+    <section>
+      <h2>Model Notes</h2>
+      <p>${escapeHtml(runResult.model_level || "Strata-level representative stands")}</p>
+      <p>${escapeHtml(runResult.caveat || "Production-grade AAC should be reviewed against plot/tree-list fitting, treatment alternatives, merchantability assumptions, and forestry judgment before use in binding documents.")}</p>
+      ${runResult.run_package_path ? `<p class="note">Run package: ${escapeHtml(runResult.run_package_path)}</p>` : ""}
+    </section>
+
+    <footer class="footer">
+      Prepared using the WoodWise Forestry AAC Calculator and the USDA Forest Service Northeast Forest Vegetation Simulator. This is not an official USDA Forest Service product and does not imply USDA endorsement.
+    </footer>
+  </main>
+</body>
+</html>`;
+}
+
+function summaryCard(label: string, value: string) {
+  return `<div class="summary-card"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`;
+}
+
+function propertyRow(label: string, value: string | number) {
+  return `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(value === "" ? "n/a" : String(value))}</td></tr>`;
+}
+
+function aggregateTable(rows: FvsAggregateRow[]) {
+  if (!rows.length) return `<p class="note">No aggregate FVS rows were returned.</p>`;
+  return `<table>
+    <thead>
+      <tr>
+        <th>Year</th>
+        <th>Acres</th>
+        <th>TPA</th>
+        <th>BA/ac</th>
+        <th>Total cu ft/ac</th>
+        <th>Merch cu ft/ac</th>
+        <th>Total cu ft</th>
+        <th>Merch cu ft</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.map((row) => `<tr>
+        <td>${escapeHtml(String(row.year))}</td>
+        <td>${number(row.acres)}</td>
+        <td>${number(row.treesPerAcre)}</td>
+        <td>${number(row.basalAreaFt2PerAcre)}</td>
+        <td>${number(row.totalVolumeCuFtPerAcre)}</td>
+        <td>${number(row.merchantableVolumeCuFtPerAcre)}</td>
+        <td>${number(row.totalVolumeCuFt)}</td>
+        <td>${number(row.merchantableVolumeCuFt)}</td>
+      </tr>`).join("")}
+    </tbody>
+  </table>`;
+}
+
+function strataTable(strata: Stratum[]) {
+  if (!strata.length) return `<p class="note">No strata were submitted.</p>`;
+  return `<table>
+    <thead>
+      <tr>
+        <th>Stratum</th>
+        <th>Acres</th>
+        <th>Forest cover type</th>
+        <th>Site</th>
+        <th>BA/ac</th>
+        <th>Mean DBH</th>
+        <th>Basis</th>
+        <th>Operable %</th>
+        <th>Structure</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${strata.map((stratum) => `<tr>
+        <td>${escapeHtml(stratum.name)}</td>
+        <td>${number(stratum.acres)}</td>
+        <td>${escapeHtml(formatForestType(stratum.forestCoverTypeId))}</td>
+        <td>${escapeHtml(stratum.siteClass)}</td>
+        <td>${number(stratum.basalArea)}</td>
+        <td>${number(stratum.meanDbh)}</td>
+        <td>${escapeHtml(stratum.meanDbhBasis)}</td>
+        <td>${number(stratum.operablePercent)}</td>
+        <td>${escapeHtml(stratum.structure)}</td>
+      </tr>`).join("")}
+    </tbody>
+  </table>`;
+}
+
+function safeFilename(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 64) || "woodwise";
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number) {
