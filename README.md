@@ -2,7 +2,7 @@
 
 Browser-based foundation for the WoodWise Forestry Annual Allowable Cut calculator, deployed from GitHub Pages.
 
-This app is being built in phases. The current foundation build includes WoodWise branding, PIN-entry UI, property inputs, configurable forest-cover choices, strata editing, CSV/JSON import and export, validation, a transparent synthetic-inventory audit preview, a Northeast FVS API path for hosted official FVS runs, and a branded downloadable HTML report after a successful FVS run.
+This app is being built in phases. The current foundation build includes WoodWise branding, PIN-entry UI, property inputs, configurable forest-cover choices, strata editing, CSV/JSON import and export, validation, a transparent synthetic-inventory audit preview, a Northeast FVS API path for hosted official FVS runs, a branded downloadable HTML report after a successful FVS run, and a protected admin restart control for the hosted FVS API.
 
 The GitHub Pages app is the user interface. Official USDA Forest Service Forest Vegetation Simulator calculations require a separate FVS API service because GitHub Pages cannot run native FVS executables or receive runtime `/runs` requests.
 
@@ -50,16 +50,20 @@ The `server/` folder contains the first API scaffold for:
 - `GET /health`
 - `POST /projects/validate`
 - `POST /runs`
+- `POST /admin/restart-service`
 
 That service is not hosted by GitHub Pages. It belongs on an internet-accessible Windows FVS host, such as a Google Compute Engine Windows VM, that can run the official Northeast FVS executable. Configure:
 
 ```text
 AAC_FVS_NE_PATH=
 AAC_APP_PIN=
+AAC_ADMIN_TOKEN=
 AAC_ALLOWED_ORIGINS=https://loggingchance.github.io,https://wwf.bicksapp.com
 ```
 
 The API validates projects, generates representative FVS keyword/tree files from each submitted stratum, runs each stratum through official Northeast FVS when `AAC_FVS_NE_PATH` points to the executable, stores the raw `.key`, `.tre`, `.out`, and `.sum` files, and returns an acreage-weighted aggregate report. If no executable is configured, it rejects the run instead of returning synthetic results.
+
+The admin restart endpoint requires `AAC_ADMIN_TOKEN` and is intended for the Diagnostics > Service admin control in the browser app. The default Windows restart command restarts the scheduled task named `WoodWise FVS API`; override it with `AAC_RESTART_COMMAND` if the host uses a different process manager.
 
 Sample strata CSVs are available at `samples/northern-hardwood-sample-strata.csv` and `samples/woodwise-52374-acre-test-strata.csv`.
 
