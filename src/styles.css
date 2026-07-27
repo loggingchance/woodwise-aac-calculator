@@ -490,6 +490,38 @@ td {
   margin: 0.15rem 0 0;
 }
 
+.admin-service {
+  border-top: 1px solid var(--line);
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+}
+
+.admin-service summary {
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.admin-message {
+  color: var(--muted);
+  margin: 0.7rem 0 0;
+}
+
+.admin-message.error {
+  color: var(--danger);
+}
+
+.admin-message.submitted {
+  color: var(--forest);
+}
+
 .pin-screen {
   align-items: start;
   background:
