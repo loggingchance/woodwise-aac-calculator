@@ -507,7 +507,7 @@ function sanitizeFileName(value) {
 function uniquePointsByYear(points) {
   const byYear = new Map();
   for (const point of points) {
-    if (!byYear.has(point.year)) byYear.set(point);
+    if (!byYear.has(point.year)) byYear.set(point.year, point);
   }
   return [...byYear.values()];
 }
