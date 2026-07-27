@@ -437,6 +437,12 @@ td {
   color: #4d5a51;
 }
 
+.report-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
 .metric-grid {
   display: grid;
   gap: 0.8rem;
