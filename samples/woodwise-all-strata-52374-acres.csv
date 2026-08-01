@@ -1,31 +1,31 @@
 stratumOrStand,acres,forestCoverTypeId,siteClass,basalArea,meanDbh,meanDbhBasis,operablePercent,structure,currentSawtimberMbfPerAcre,currentGreenTonsPerAcre,notes
-131801 — Worth — Harvested 2004-2014,2427,saf-25,2,140.9,10.5,qmd,90,even-aged,,,
-131802 — Worth — Broadleaf Dominant,1933,saf-25,2,175.5,9.5,qmd,90,even-aged,,,
-131803 — Worth — Riparian/Wetland,677,saf-24,2,321.7,11.9,qmd,90,even-aged,,,
-131804 — Worth — Harvested 2014-2024,340,saf-31,2,54,7.9,qmd,90,two-aged,,,
-131901 — Little Jon North — Broadleaf Dominant,4072,saf-25,2,236.1,10.3,qmd,90,even-aged,,,
-131902 — Little Jon North — Harvested 2004-2014,797,saf-27,2,148.2,10.8,qmd,90,even-aged,,,
-131903 — Little Jon North — Riparian/Wetland,611,saf-108,2,135.1,7.9,qmd,90,even-aged,,,
-131904 — Little Jon North — Harvested 2014-2024,445,saf-25,2,167,11.4,qmd,90,even-aged,,,
-131905 — Little Jon North — Mixed,123,saf-24,2,123.2,11.8,qmd,90,two-aged,,,
-132001 — Little Jon South — Broadleaf Dominant,3478,saf-25,2,159.8,12.4,qmd,90,even-aged,,,
-132002 — Little Jon South — Harvested 2004-2014,1357,saf-27,2,103.8,10.5,qmd,90,even-aged,,,
-132003 — Little Jon South — Harvested 2014-2024,539,saf-25,2,75.1,10.3,qmd,90,two-aged,,,
-132004 — Little Jon South — Riparian/Wetland,206,saf-60,2,119.3,10.1,qmd,90,even-aged,,,
-132101 — Redfield — Broadleaf Dominant,1420,saf-25,2,119.7,10.7,qmd,90,even-aged,,,
-132102 — Redfield — Harvested 2014-2024,1273,saf-25,2,146.6,11.8,qmd,90,even-aged,,,
-132103 — Redfield — Mixed,548,saf-24,2,244.1,15,qmd,90,even-aged,,,
-132104 — Redfield — Riparian/Wetland,462,saf-60,2,111.4,11.2,qmd,90,even-aged,,,
-132105 — Redfield — Harvested 2004-2014,397,saf-25,2,89.6,10.3,qmd,90,two-aged,,,
-132201 — Williamstown — Harvested 2004-2014,816,saf-25,2,226.5,14.5,qmd,90,even-aged,,,
-132202 — Williamstown — Mixed,760,saf-108,2,135.2,10.2,qmd,90,even-aged,,,
-132203 — Williamstown — Harvested 2014-2024,753,saf-28,2,73.5,11.6,qmd,90,two-aged,,,
-132204 — Williamstown — Riparian/Wetland,731,saf-24,2,184.8,11.5,qmd,90,even-aged,,,
-132205 — Williamstown — Broadleaf Dominant,156,saf-25,2,118.9,11.2,qmd,90,even-aged,,,
-131201 — WoodWise Timberlands — Broadleaf Dominant,1056,saf-25,2,34.2,10.1,qmd,90,even-aged,,,"SOURCE: WoodWise Timberlands FMP, pp. 27–31. Acreage, BA and average DBH are plan values. Forest cover type and structure are best-fit interpretations from species composition/current condition. Site class 2 and 90% operable follow the calibrated SRT defaults; plan DBH is entered as qmd for consistency with that file."
-131202 — WoodWise Timberlands — Harvested 2014-2024,275,saf-30,2,26.6,9.2,qmd,90,two-aged,,,"SOURCE: WoodWise Timberlands FMP, pp. 27–31. Acreage, BA and average DBH are plan values. Forest cover type and structure are best-fit interpretations from species composition/current condition. Site class 2 and 90% operable follow the calibrated SRT defaults; plan DBH is entered as qmd for consistency with that file."
-131203 — WoodWise Timberlands — Harvested 2014-2024,482,saf-25,2,29.6,9.1,qmd,90,two-aged,,,"SOURCE: WoodWise Timberlands FMP, pp. 27–31. Acreage, BA and average DBH are plan values. Forest cover type and structure are best-fit interpretations from species composition/current condition. Site class 2 and 90% operable follow the calibrated SRT defaults; plan DBH is entered as qmd for consistency with that file."
-131204 — WoodWise Timberlands — Harvested 2004-2014,157,saf-60,2,23.1,8.9,qmd,90,even-aged,,,"SOURCE: WoodWise Timberlands FMP, pp. 27–31. Acreage, BA and average DBH are plan values. Forest cover type and structure are best-fit interpretations from species composition/current condition. Site class 2 and 90% operable follow the calibrated SRT defaults; plan DBH is entered as qmd for consistency with that file."
+131801 — Worth — Harvested 2004-2014,2427,saf-25,1,140.9,10.5,qmd,90,even-aged,,,
+131802 — Worth — Broadleaf Dominant,1933,saf-25,1,175.5,9.5,qmd,90,even-aged,,,
+131803 — Worth — Riparian/Wetland,677,saf-24,1,321.7,11.9,qmd,90,even-aged,,,
+131804 — Worth — Harvested 2014-2024,340,saf-31,1,54,7.9,qmd,90,two-aged,,,
+131901 — Little Jon North — Broadleaf Dominant,4072,saf-25,1,236.1,10.3,qmd,90,even-aged,,,
+131902 — Little Jon North — Harvested 2004-2014,797,saf-27,1,148.2,10.8,qmd,90,even-aged,,,
+131903 — Little Jon North — Riparian/Wetland,611,saf-108,1,135.1,7.9,qmd,90,even-aged,,,
+131904 — Little Jon North — Harvested 2014-2024,445,saf-25,1,167,11.4,qmd,90,even-aged,,,
+131905 — Little Jon North — Mixed,123,saf-24,1,123.2,11.8,qmd,90,two-aged,,,
+132001 — Little Jon South — Broadleaf Dominant,3478,saf-25,1,159.8,12.4,qmd,90,even-aged,,,
+132002 — Little Jon South — Harvested 2004-2014,1357,saf-27,1,103.8,10.5,qmd,90,even-aged,,,
+132003 — Little Jon South — Harvested 2014-2024,539,saf-25,1,75.1,10.3,qmd,90,two-aged,,,
+132004 — Little Jon South — Riparian/Wetland,206,saf-60,1,119.3,10.1,qmd,90,even-aged,,,
+132101 — Redfield — Broadleaf Dominant,1420,saf-25,1,119.7,10.7,qmd,90,even-aged,,,
+132102 — Redfield — Harvested 2014-2024,1273,saf-25,1,146.6,11.8,qmd,90,even-aged,,,
+132103 — Redfield — Mixed,548,saf-24,1,244.1,15,qmd,90,even-aged,,,
+132104 — Redfield — Riparian/Wetland,462,saf-60,1,111.4,11.2,qmd,90,even-aged,,,
+132105 — Redfield — Harvested 2004-2014,397,saf-25,1,89.6,10.3,qmd,90,two-aged,,,
+132201 — Williamstown — Harvested 2004-2014,816,saf-25,1,226.5,14.5,qmd,90,even-aged,,,
+132202 — Williamstown — Mixed,760,saf-108,1,135.2,10.2,qmd,90,even-aged,,,
+132203 — Williamstown — Harvested 2014-2024,753,saf-28,1,73.5,11.6,qmd,90,two-aged,,,
+132204 — Williamstown — Riparian/Wetland,731,saf-24,1,184.8,11.5,qmd,90,even-aged,,,
+132205 — Williamstown — Broadleaf Dominant,156,saf-25,1,118.9,11.2,qmd,90,even-aged,,,
+131201 — WoodWise Timberlands — Broadleaf Dominant,1056,saf-25,1,34.2,10.1,qmd,90,even-aged,,,"SOURCE: WoodWise Timberlands FMP, pp. 27–31. Acreage, BA and average DBH are plan values. Forest cover type and structure are best-fit interpretations from species composition/current condition. Site class 1 and 90% operable follow the calibrated SRT defaults; plan DBH is entered as qmd for consistency with that file."
+131202 — WoodWise Timberlands — Harvested 2014-2024,275,saf-30,1,26.6,9.2,qmd,90,two-aged,,,"SOURCE: WoodWise Timberlands FMP, pp. 27–31. Acreage, BA and average DBH are plan values. Forest cover type and structure are best-fit interpretations from species composition/current condition. Site class 1 and 90% operable follow the calibrated SRT defaults; plan DBH is entered as qmd for consistency with that file."
+131203 — WoodWise Timberlands — Harvested 2014-2024,482,saf-25,1,29.6,9.1,qmd,90,two-aged,,,"SOURCE: WoodWise Timberlands FMP, pp. 27–31. Acreage, BA and average DBH are plan values. Forest cover type and structure are best-fit interpretations from species composition/current condition. Site class 1 and 90% operable follow the calibrated SRT defaults; plan DBH is entered as qmd for consistency with that file."
+131204 — WoodWise Timberlands — Harvested 2004-2014,157,saf-60,1,23.1,8.9,qmd,90,even-aged,,,"SOURCE: WoodWise Timberlands FMP, pp. 27–31. Acreage, BA and average DBH are plan values. Forest cover type and structure are best-fit interpretations from species composition/current condition. Site class 1 and 90% operable follow the calibrated SRT defaults; plan DBH is entered as qmd for consistency with that file."
 131205 — WoodWise Timberlands — Evergreen Dominant,57,saf-21,2,15.4,5.9,qmd,90,two-aged,,,"SOURCE: WoodWise Timberlands FMP, pp. 27–31. Acreage, BA and average DBH are plan values. Forest cover type and structure are best-fit interpretations from species composition/current condition. Site class 2 and 90% operable follow the calibrated SRT defaults; plan DBH is entered as qmd for consistency with that file."
 WWLC — Hornell PAI,2392,saf-25,2,89.5,10.2,qmd,90,even-aged,,,"PROXY: WWLC FMP, pp. 4–5, reports this PAI acreage but no PAI-level BA or DBH. BA 89.5 and DBH 10.2 are the acreage-weighted averages of the four quantified WWFL forest-condition categories, used only as a temporary modeling proxy. Cover type is inferred from the WWLC portfolio narrative; site class 2, 90% operable and even-aged structure are calibration defaults. Replace when PAI inventory metrics are available."
 WWLC — Buffalo PAI,1152,saf-25,2,89.5,10.2,qmd,90,even-aged,,,"PROXY: WWLC FMP, pp. 4–5, reports this PAI acreage but no PAI-level BA or DBH. BA 89.5 and DBH 10.2 are the acreage-weighted averages of the four quantified WWFL forest-condition categories, used only as a temporary modeling proxy. Cover type is inferred from the WWLC portfolio narrative; site class 2, 90% operable and even-aged structure are calibration defaults. Replace when PAI inventory metrics are available."

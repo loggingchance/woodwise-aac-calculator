@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import allWoodWiseStrataCsv from "../../samples/woodwise-all-strata-52374-acres.csv?raw";
 import { createStratum, csvToStrata, forestTypes, strataToCsv, syntheticMetrics, validateProject, defaultProperty } from "../lib/forestry";
 
 describe("WoodWise foundation forestry utilities", () => {
@@ -50,5 +51,16 @@ describe("WoodWise foundation forestry utilities", () => {
     const [imported] = csvToStrata(csv);
     expect(imported.currentSawtimberMbfPerAcre).toBe(5.5);
     expect(imported.currentGreenTonsPerAcre).toBe(68);
+  });
+
+  it("loads WoodWise strata with site 1 covering at least half the acreage", () => {
+    const imported = csvToStrata(allWoodWiseStrataCsv);
+    const totalAcres = imported.reduce((sum, stratum) => sum + stratum.acres, 0);
+    const siteOneAcres = imported
+      .filter((stratum) => stratum.siteClass === "1")
+      .reduce((sum, stratum) => sum + stratum.acres, 0);
+
+    expect(totalAcres).toBe(52374);
+    expect(siteOneAcres).toBeGreaterThan(totalAcres / 2);
   });
 });
