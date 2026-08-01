@@ -249,7 +249,7 @@ function App() {
   }
 
   function loadAllWoodWiseStrata() {
-    const allStrata = csvToStrata(allWoodWiseStrataCsv);
+    const allStrata = csvToStrata(allWoodWiseStrataCsv).map(addEstimatedCurrentVolumes);
     setProperty({
       ...property,
       propertyName: property.propertyName || "WoodWise 52,374-acre ownership",
@@ -304,12 +304,13 @@ function App() {
           <button disabled={runState === "submitting"} onClick={() => void runFvsAnalysis()}>
             <Play size={18} /> {runState === "submitting" ? "Submitting" : "Run FVS analysis"}
           </button>
+          {hasCurrentFvsResult && <a className="result-link" href="#fvs-results">View FVS results</a>}
           {runMessage && <p className={`run-message ${runState}`}>{runMessage}</p>}
         </div>
       </section>
 
       {hasCurrentFvsResult && runResult?.aggregate?.length ? (
-        <section className="panel fvs-results">
+        <section className="panel fvs-results" id="fvs-results">
           <SectionHeader title="Official FVS Results" kicker={`Run ${runResult.run_id || runResult.id || ""}`} />
           <div className="metric-grid">
             <Metric label="Initial merchantable volume" value={`${number(runResult.aggregate[0].merchantableVolumeCuFtPerAcre)} cu ft/ac`} />
@@ -496,7 +497,7 @@ function App() {
           {runResult ? (
             <div className="report-actions">
               <button onClick={() => downloadReport(property, strata, totals, runResult)}>
-                <FileText size={18} /> Download report
+                <FileText size={18} /> Download PDF report
               </button>
             </div>
           ) : null}
@@ -624,6 +625,18 @@ function updateStratum(id: string, patch: Partial<Stratum>, strata: Stratum[], s
   setStrata(strata.map((stratum) => (stratum.id === id ? { ...stratum, ...patch } : stratum)));
 }
 
+function addEstimatedCurrentVolumes(stratum: Stratum): Stratum {
+  const qmd = stratum.meanDbhBasis === "arithmetic" ? stratum.meanDbh * 1.04 : stratum.meanDbh;
+  const siteMultiplier = stratum.siteClass === "1" ? 1.12 : stratum.siteClass === "3" ? 0.88 : 1;
+  const sawFactor = qmd >= 14 ? 0.075 : qmd >= 11 ? 0.035 : 0.012;
+  const greenFactor = qmd >= 8 ? 0.62 : 0.38;
+  return {
+    ...stratum,
+    currentSawtimberMbfPerAcre: stratum.currentSawtimberMbfPerAcre ?? roundTenth(stratum.basalArea * sawFactor * siteMultiplier),
+    currentGreenTonsPerAcre: stratum.currentGreenTonsPerAcre ?? roundTenth(stratum.basalArea * greenFactor * siteMultiplier)
+  };
+}
+
 async function loadProjectFile(event: React.ChangeEvent<HTMLInputElement>, setProperty: (property: PropertyInfo) => void, setStrata: (strata: Stratum[]) => void) {
   const file = event.target.files?.[0];
   if (!file) return;
@@ -633,7 +646,7 @@ async function loadProjectFile(event: React.ChangeEvent<HTMLInputElement>, setPr
   event.target.value = "";
 }
 
-function download(filename: string, content: string, type: string) {
+function download(filename: string, content: BlobPart, type: string) {
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -649,8 +662,59 @@ function downloadReport(
   totals: ReturnType<typeof reportTotals>,
   runResult: FvsDisplayResult
 ) {
-  const filename = `${safeFilename(property.propertyName || "woodwise")}-aac-report.html`;
-  download(filename, buildReportHtml(property, strata, totals, runResult), "text/html");
+  const filename = `${safeFilename(property.propertyName || "woodwise")}-aac-report.pdf`;
+  download(filename, buildReportPdf(property, strata, totals, runResult), "application/pdf");
+}
+
+function buildReportPdf(
+  property: PropertyInfo,
+  strata: Stratum[],
+  totals: ReturnType<typeof reportTotals>,
+  runResult: FvsDisplayResult
+) {
+  const analysisDate = new Date().toLocaleDateString();
+  const runId = runResult.run_id || runResult.id || "not reported";
+  const aggregate = runResult.aggregate || [];
+  const initial = aggregate[0];
+  const final = aggregate[aggregate.length - 1];
+  const lines = [
+    "WoodWise Forestry Annual Allowable Cut Analysis",
+    `${property.propertyName || "Unnamed property"} | Inventory ${property.inventoryYear} | ${analysisDate}`,
+    "",
+    `FVS run ID: ${runId}`,
+    `FVS status: ${runResult.status || "complete"}`,
+    `Modeled acres: ${number(totals.modeledAcres)}`,
+    `Operable acres: ${number(totals.operableAcres)}`,
+    "",
+    "AAC Planning Summary",
+    `Biological sawtimber AAC: ${number(totals.biologicalSawAac)} MBF/year`,
+    `Biological green-ton AAC: ${number(totals.biologicalGreenAac)} green tons/year`,
+    `Planning sawtimber preview: ${number(totals.planningSawAac)} MBF/year`,
+    `Planning green-ton preview: ${number(totals.planningGreenAac)} green tons/year`,
+    "",
+    "Official FVS Results",
+    `Initial merch volume: ${initial ? `${number(initial.merchantableVolumeCuFtPerAcre)} cu ft/ac` : "n/a"}`,
+    `Final merch volume: ${final ? `${number(final.merchantableVolumeCuFtPerAcre)} cu ft/ac` : "n/a"}`,
+    `Initial basal area: ${initial ? `${number(initial.basalAreaFt2PerAcre)} sq ft/ac` : "n/a"}`,
+    `Final basal area: ${final ? `${number(final.basalAreaFt2PerAcre)} sq ft/ac` : "n/a"}`,
+    "",
+    "FVS Aggregate Rows",
+    "Year | Acres | TPA | BA/ac | Total cu ft/ac | Merch cu ft/ac",
+    ...aggregate.map((row) =>
+      `${row.year} | ${number(row.acres)} | ${number(row.treesPerAcre)} | ${number(row.basalAreaFt2PerAcre)} | ${number(row.totalVolumeCuFtPerAcre)} | ${number(row.merchantableVolumeCuFtPerAcre)}`
+    ),
+    "",
+    "Forest Strata Submitted",
+    ...strata.map((stratum) =>
+      `${stratum.name} | ${number(stratum.acres)} ac | ${formatForestType(stratum.forestCoverTypeId)} | BA ${number(stratum.basalArea)} | DBH ${number(stratum.meanDbh)}`
+    ),
+    "",
+    "Model Notes",
+    runResult.model_level || "Strata-level representative stands",
+    runResult.caveat || "Production-grade AAC should be reviewed against plot/tree-list fitting, treatment alternatives, merchantability assumptions, and forestry judgment before use in binding documents.",
+    runResult.run_package_path ? `Run package: ${runResult.run_package_path}` : ""
+  ];
+  return createPdf(lines);
 }
 
 function buildReportHtml(
@@ -986,8 +1050,96 @@ function formatRunError(message: string, runApiUrl: string) {
   return message;
 }
 
+function createPdf(lines: string[]) {
+  const pageWidth = 612;
+  const pageHeight = 792;
+  const margin = 48;
+  const lineHeight = 13;
+  const linesPerPage = Math.floor((pageHeight - margin * 2) / lineHeight);
+  const wrapped = lines.flatMap((line) => wrapPdfLine(line, 92));
+  const pages: string[][] = [];
+  for (let i = 0; i < wrapped.length; i += linesPerPage) {
+    pages.push(wrapped.slice(i, i + linesPerPage));
+  }
+
+  const objects: string[] = [];
+  objects.push("<< /Type /Catalog /Pages 2 0 R >>");
+  objects.push(`<< /Type /Pages /Kids [${pages.map((_, index) => `${3 + index * 2} 0 R`).join(" ")}] /Count ${pages.length} >>`);
+
+  pages.forEach((pageLines, index) => {
+    const pageObjectNumber = 3 + index * 2;
+    const contentObjectNumber = pageObjectNumber + 1;
+    objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> >> >> /Contents ${contentObjectNumber} 0 R >>`);
+    const content = pdfPageContent(pageLines, margin, pageHeight - margin, lineHeight, index + 1, pages.length);
+    objects.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+  });
+
+  let pdf = "%PDF-1.4\n";
+  const offsets = [0];
+  objects.forEach((object, index) => {
+    offsets.push(pdf.length);
+    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  });
+  const xrefOffset = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  offsets.slice(1).forEach((offset) => {
+    pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
+  });
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  return pdf;
+}
+
+function pdfPageContent(lines: string[], x: number, startY: number, lineHeight: number, page: number, pageCount: number) {
+  const commands = ["BT"];
+  lines.forEach((line, index) => {
+    const isTitle = index === 0 && page === 1;
+    commands.push(`/${isTitle ? "F2" : "F1"} ${isTitle ? 16 : 10} Tf`);
+    commands.push(`${x} ${startY - index * lineHeight} Td (${escapePdfText(line)}) Tj`);
+    commands.push(`${-x} ${-(startY - index * lineHeight)} Td`);
+  });
+  commands.push("/F1 9 Tf");
+  commands.push(`${x} 28 Td (Page ${page} of ${pageCount}) Tj`);
+  commands.push("ET");
+  return commands.join("\n");
+}
+
+function wrapPdfLine(line: string, maxLength: number) {
+  const clean = pdfSafeText(line);
+  if (clean.length <= maxLength) return [clean];
+  const words = clean.split(/\s+/);
+  const output: string[] = [];
+  let current = "";
+  words.forEach((word) => {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length > maxLength) {
+      if (current) output.push(current);
+      current = word;
+    } else {
+      current = next;
+    }
+  });
+  if (current) output.push(current);
+  return output;
+}
+
+function pdfSafeText(value: string) {
+  return value
+    .replace(/[\u2014\u2013]/g, "-")
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[^\x09\x0A\x0D\x20-\x7E]/g, "");
+}
+
+function escapePdfText(value: string) {
+  return pdfSafeText(value).replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+}
+
 function number(value: number) {
   return Math.round(value).toLocaleString();
+}
+
+function roundTenth(value: number) {
+  return Math.round(value * 10) / 10;
 }
 
 createRoot(document.getElementById("root")!).render(<App />);

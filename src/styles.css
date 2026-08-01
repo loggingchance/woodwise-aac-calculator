@@ -180,6 +180,25 @@ main {
   width: 100%;
 }
 
+.result-link {
+  align-items: center;
+  background: #e6f1eb;
+  border: 1px solid #b8d1c4;
+  border-radius: 6px;
+  color: var(--forest);
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0.55rem 0.8rem;
+  text-decoration: none;
+  width: 100%;
+}
+
+.result-link:hover {
+  background: #d7eadf;
+}
+
 .run-message {
   border-radius: 6px;
   font-size: 0.9rem;
