@@ -304,7 +304,7 @@ function App() {
           <button disabled={runState === "submitting"} onClick={() => void runFvsAnalysis()}>
             <Play size={18} /> {runState === "submitting" ? "Submitting" : "Run FVS analysis"}
           </button>
-          {hasCurrentFvsResult && <a className="result-link" href="#fvs-results">View FVS results</a>}
+          {hasCurrentFvsResult && <a className="result-link" href="#aac-report">View FVS results</a>}
           {runMessage && <p className={`run-message ${runState}`}>{runMessage}</p>}
         </div>
       </section>
@@ -486,7 +486,7 @@ function App() {
       </section>
 
       {hasCurrentFvsResult ? (
-        <section className="report-section">
+        <section className="report-section" id="aac-report">
           <div className="report-header">
             <img src={assetPath("branding/woodwise-forestry-logo.png")} alt="WoodWise Forestry logo" />
             <div>
