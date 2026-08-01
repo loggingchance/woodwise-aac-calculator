@@ -1,4 +1,4 @@
-# Connector publish trigger: rebuilds the fixed WoodWise app source.
+# Connector publish trigger: rebuilds the fixed WoodWise app source and results-link target.
 name: Deploy WoodWise AAC app
 
 on:
