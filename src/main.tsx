@@ -15,7 +15,7 @@ import {
 } from "./lib/forestry";
 import type { PropertyInfo, Stratum } from "./types/project";
 import sampleStrataCsv from "../samples/northern-hardwood-sample-strata.csv?raw";
-import acreageTestStrataCsv from "../samples/woodwise-52374-acre-test-strata.csv?raw";
+import allWoodWiseStrataCsv from "../samples/woodwise-all-strata-52374-acres.csv?raw";
 
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 const defaultApiBaseUrl = "https://woodwise.bicksapp.com";
@@ -240,19 +240,22 @@ function App() {
     setRunMessage("");
   }
 
-  function loadAcreageTestSample() {
-    const testStrata = csvToStrata(acreageTestStrataCsv);
-    setProperty({
-      ...defaultProperty,
-      propertyName: "52,374-acre test property",
-      county: "Northeast FVS test area",
-      totalOwnershipAcres: testStrata.reduce((sum, item) => sum + item.acres, 0)
-    });
-    setStrata(testStrata);
+  function replaceStrata(nextStrata: Stratum[]) {
+    setStrata(nextStrata);
     setRunResult(null);
     setCompletedRunSignature("");
     setRunState("idle");
     setRunMessage("");
+  }
+
+  function loadAllWoodWiseStrata() {
+    const allStrata = csvToStrata(allWoodWiseStrataCsv);
+    setProperty({
+      ...property,
+      propertyName: property.propertyName || "WoodWise 52,374-acre ownership",
+      totalOwnershipAcres: allStrata.reduce((sum, item) => sum + item.acres, 0)
+    });
+    replaceStrata(allStrata);
   }
 
   if (!authenticated) {
@@ -386,7 +389,7 @@ function App() {
           <div className="button-row">
             <button onClick={() => setStrata([...strata, createStratum(strata.length + 1)])}><Plus size={18} /> Add stratum row</button>
             <button onClick={loadStarterSample}><Upload size={18} /> Load sample</button>
-            <button onClick={loadAcreageTestSample}><Upload size={18} /> Load 52,374-acre test</button>
+            <button onClick={loadAllWoodWiseStrata}><Upload size={18} /> Load all WoodWise Strata</button>
             <button onClick={() => download("woodwise-strata.csv", strataToCsv(strata), "text/csv")}><Download size={18} /> CSV</button>
             <button onClick={() => download("woodwise-project.json", JSON.stringify({ property, strata }, null, 2), "application/json")}><FileJson size={18} /> JSON</button>
             <button onClick={() => fileRef.current?.click()}><Upload size={18} /> Upload JSON</button>
@@ -462,7 +465,7 @@ function App() {
           <p>Paste rows copied from Excel or a CSV file. Importing replaces the current strata table.</p>
           <textarea value={csvDraft} onChange={(event) => setCsvDraft(event.target.value)} placeholder="Paste strata rows here" />
           <div className="button-row">
-            <button disabled={!csvDraft.trim()} onClick={() => { setStrata(csvToStrata(csvDraft)); setCsvDraft(""); }}><Upload size={18} /> Import pasted CSV</button>
+            <button disabled={!csvDraft.trim()} onClick={() => { replaceStrata(csvToStrata(csvDraft)); setCsvDraft(""); }}><Upload size={18} /> Import pasted CSV</button>
             <button className="ghost-button" disabled={!csvDraft} onClick={() => setCsvDraft("")}>Clear paste box</button>
           </div>
         </details>

@@ -75,7 +75,7 @@ if errorlevel 1 (
 
 echo.
 echo Pushing main branch...
-git push -u origin main
+git -c http.sslBackend=openssl push -u origin main
 if errorlevel 1 (
   echo.
   echo Push failed.
