@@ -187,9 +187,9 @@ function App() {
       return;
     }
 
-    let adminToken = sessionStorage.getItem("woodwise-aac-admin-token") || "";
+    let adminToken = localStorage.getItem(adminRestartTokenStorageKey) || "";
     if (!adminToken) {
-      adminToken = window.prompt("Admin restart token")?.trim() || "";
+      adminToken = window.prompt("Admin restart token - paste it once on this computer")?.trim() || "";
     }
 
     if (!adminToken) {
@@ -198,7 +198,7 @@ function App() {
       return;
     }
 
-    sessionStorage.setItem("woodwise-aac-admin-token", adminToken);
+    localStorage.setItem(adminRestartTokenStorageKey, adminToken);
     setAdminState("restarting");
     setAdminMessage("Requesting service restart...");
 
@@ -210,7 +210,7 @@ function App() {
       const result = (await readJsonResponse(response)) as { message?: string; detail?: string };
 
       if (!response.ok) {
-        if (response.status === 401) sessionStorage.removeItem("woodwise-aac-admin-token");
+        if (response.status === 401) localStorage.removeItem(adminRestartTokenStorageKey);
         throw new Error(result.message || result.detail || `Restart request returned ${response.status}.`);
       }
 
@@ -548,6 +548,7 @@ function App() {
 
 const defaultFrontPinHash = "37ba3881108bf3e48180350246c5959b9481633d0cb1d8694fb141dc74e5fe79";
 const frontPinHash = import.meta.env.VITE_AAC_FRONT_PIN_HASH || defaultFrontPinHash;
+const adminRestartTokenStorageKey = "woodwise-aac-admin-restart-token";
 
 async function sha256Hex(value: string): Promise<string> {
   const bytes = new TextEncoder().encode(value);
