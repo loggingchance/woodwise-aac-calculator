@@ -161,6 +161,14 @@ main {
   justify-items: end;
 }
 
+.connection-buttons,
+.setup-links {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+}
+
 .api-url-field {
   display: grid;
   gap: 0.35rem;
@@ -180,6 +188,12 @@ main {
   width: 100%;
 }
 
+.secondary-button {
+  background: #fffdf7;
+  border-color: var(--line);
+  color: var(--forest);
+}
+
 .result-link {
   align-items: center;
   background: #e6f1eb;
@@ -197,6 +211,25 @@ main {
 
 .result-link:hover {
   background: #d7eadf;
+}
+
+.text-link {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--forest);
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0.55rem 0.8rem;
+  text-align: center;
+  text-decoration: none;
+  width: 100%;
+}
+
+.text-link:hover {
+  background: #fff5d9;
 }
 
 .run-message {
@@ -671,6 +704,11 @@ td {
 
   .run-actions {
     justify-items: stretch;
+  }
+
+  .connection-buttons,
+  .setup-links {
+    grid-template-columns: 1fr;
   }
 
   .form-grid {

@@ -2,7 +2,7 @@
 
 Browser-based foundation for the WoodWise Forestry Annual Allowable Cut calculator, deployed from GitHub Pages.
 
-This app is being built in phases. The current foundation build includes WoodWise branding, PIN-entry UI, property inputs, configurable forest-cover choices, strata editing, CSV/JSON import and export, validation, a transparent synthetic-inventory audit preview, a Northeast FVS API path for hosted official FVS runs, a branded downloadable HTML report after a successful FVS run, and a protected admin restart control for the hosted FVS API.
+This app is being built in phases. The current foundation build includes WoodWise branding, PIN-entry UI, property inputs, configurable forest-cover choices, strata editing, CSV/JSON import and export, validation, a transparent synthetic-inventory audit preview, a Northeast FVS API path for local or hosted official FVS runs, a branded downloadable HTML report after a successful FVS run, and a protected admin restart control for the hosted FVS API.
 
 The GitHub Pages app is the user interface. Official USDA Forest Service Forest Vegetation Simulator calculations require a separate FVS API service because GitHub Pages cannot run native FVS executables or receive runtime `/runs` requests.
 
@@ -33,15 +33,21 @@ https://wwf.bicksapp.com/
 
 The static front-door PIN is checked in the browser with a SHA-256 hash. The launch PIN is `8675309`; replace it by setting `VITE_AAC_FRONT_PIN_HASH` to a SHA-256 hex digest during build. This is not a substitute for the backend-verified PIN required before production FVS runs.
 
-### FVS API URL
+### FVS Service URL
 
-Set this repository variable before deploying production runs:
+The public app encourages users to run FVS locally through:
+
+```text
+http://127.0.0.1:8787
+```
+
+The hosted fallback remains:
 
 ```text
 VITE_AAC_API_URL=https://woodwise.bicksapp.com
 ```
 
-The public GitHub Pages app defaults to `https://woodwise.bicksapp.com` and will use `VITE_AAC_API_URL` if a different hosted API is configured. The app keeps the API URL visible so a tester can verify where **Run FVS analysis** is being sent.
+The public GitHub Pages app defaults to `https://woodwise.bicksapp.com` and will use `VITE_AAC_API_URL` if a different hosted API is configured. Users can switch the visible service field to `http://127.0.0.1:8787` with **Use Local FVS** after installing FVS and starting the local WoodWise service.
 
 ## FVS API Service
 
@@ -52,7 +58,7 @@ The `server/` folder contains the first API scaffold for:
 - `POST /runs`
 - `POST /admin/restart-service`
 
-That service is not hosted by GitHub Pages. It belongs on an internet-accessible Windows FVS host, such as a Google Compute Engine Windows VM, that can run the official Northeast FVS executable. Configure:
+That service is not hosted by GitHub Pages. It can run locally on a user's Windows computer or on an internet-accessible Windows FVS host that can run the official Northeast FVS executable. Configure:
 
 ```text
 AAC_FVS_NE_PATH=
@@ -69,7 +75,7 @@ Sample strata CSVs are available at `samples/northern-hardwood-sample-strata.csv
 
 The 52,374-acre test sample has been run successfully through official Northeast FVS using the backend run path. The current backend model level is still a strata-level representative-stand smoke test, not a production tree-list calibration or treatment optimizer.
 
-Hosted WoodWise API instructions are in `docs/woodwise-fvs-api.md`.
+Local FVS user setup instructions are in `docs/local-fvs-setup.md`. Hosted WoodWise API instructions are in `docs/woodwise-fvs-api.md`.
 
 ## Tests
 
