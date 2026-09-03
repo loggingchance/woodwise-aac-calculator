@@ -6,7 +6,7 @@ WoodWise AAC can run Northeast FVS through a local service on the user's own com
 http://127.0.0.1:8787
 ```
 
-This is the preferred path when a user has USDA Forest Service FVS installed locally. The hosted WoodWise API at `https://woodwise.bicksapp.com` remains available as a fallback.
+This is the supported public path when a user has USDA Forest Service FVS installed locally. The retired hosted WoodWise API should not be used for public runs.
 
 ## Windows
 

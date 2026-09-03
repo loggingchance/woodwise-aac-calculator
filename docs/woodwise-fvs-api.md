@@ -1,14 +1,24 @@
-# WoodWise FVS API
+# Retired WoodWise Hosted FVS API
 
-WoodWise needs its own FVS API. Do not use or modify the CARBINE API for WoodWise testing.
+The public WoodWise app no longer offers a hosted FVS fallback. Do not point public users at the retired WoodWise cloud FVS endpoint.
+
+Current public runs should use the local connector:
+
+```text
+http://127.0.0.1:8787
+```
+
+See `docs/local-fvs-setup.md` for user-facing setup instructions.
+
+The notes below are retained only as private operator history for the old Windows API service. They are not current public deployment instructions.
 
 Target shape:
 
 ```text
 WoodWise GitHub Pages app
-  sends project data to VITE_AAC_API_URL
+  sends project data to the local connector
 
-Separate WoodWise Windows API host
+Retired separate WoodWise Windows API host
   runs official Northeast FVS
   returns WoodWise FVS results
 ```
@@ -56,15 +66,13 @@ Default allowed browser origin:
 https://loggingchance.github.io,https://wwf.bicksapp.com
 ```
 
-## Public URL
+## Retired Public URL
 
-Put HTTPS in front of the API host, then set the GitHub repository variable:
+Do not configure the public app to use the retired hosted endpoint. If a private replacement service is ever created later, use a new private URL and document it separately.
 
 ```text
-VITE_AAC_API_URL=https://woodwise.bicksapp.com
+VITE_AAC_API_URL=
 ```
-
-The app defaults to `https://woodwise.bicksapp.com`, so this variable is only needed if you move the hosted WoodWise API later.
 
 The WoodWise page calls:
 
@@ -85,12 +93,12 @@ Authorization: Bearer <AAC_ADMIN_TOKEN>
 
 The endpoint is disabled unless `AAC_ADMIN_TOKEN` is set on the API host. On Windows, the default restart command stops and starts the scheduled task named `WoodWise FVS API`. Set `AAC_RESTART_COMMAND` if a different service manager is used.
 
-## Health Check
+## Historical Health Check
 
 Check:
 
 ```text
-https://woodwise.bicksapp.com/health
+<retired-private-api-url>/health
 ```
 
 Expected:
