@@ -165,8 +165,15 @@ main {
 .setup-links {
   display: grid;
   gap: 0.55rem;
-  grid-template-columns: 1fr 1fr;
   width: 100%;
+}
+
+.connection-buttons {
+  grid-template-columns: 1fr;
+}
+
+.setup-links {
+  grid-template-columns: 1fr 1fr;
 }
 
 .api-url-field {

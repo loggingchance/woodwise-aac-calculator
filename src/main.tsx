@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Download, ExternalLink, FileJson, FileText, LogOut, MonitorDown, Play, Plus, RotateCw, Server, ShieldCheck, Upload, AlertTriangle, CheckCircle2, Copy, Trash2 } from "lucide-react";
+import { Download, ExternalLink, FileJson, FileText, LogOut, MonitorDown, Play, Plus, ShieldCheck, Upload, AlertTriangle, CheckCircle2, Copy, Trash2 } from "lucide-react";
 import "./styles.css";
 import {
   createStratum,
@@ -18,13 +18,16 @@ import sampleStrataCsv from "../samples/northern-hardwood-sample-strata.csv?raw"
 import allWoodWiseStrataCsv from "../samples/woodwise-all-strata-52374-acres.csv?raw";
 
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
-const defaultApiBaseUrl = "https://woodwise.bicksapp.com";
 const localFvsConnectorUrl = "http://127.0.0.1:8787";
 const fvsSetupGuideUrl = assetPath("docs/local-fvs-setup.html");
 const fvsCompletePackageUrl = "https://www.fs.usda.gov/fvs/software/complete.php";
-const unusableApiBaseUrls = new Set(["http://34.122.158.209:8788", "https://wwf.bicksapp.com", "https://loggingchance.github.io"]);
+const retiredHostedApiBaseUrls = new Set(["https://woodwise.bicksapp.com", "http://34.122.158.209:8788"]);
+const unusableApiBaseUrls = new Set(["https://wwf.bicksapp.com", "https://loggingchance.github.io"]);
 const configuredApiUrl = import.meta.env.VITE_AAC_API_URL?.replace(/\/$/, "") || "";
-const configuredApiBaseUrl = configuredApiUrl && !unusableApiBaseUrls.has(configuredApiUrl) ? configuredApiUrl : defaultApiBaseUrl;
+const configuredApiBaseUrl =
+  configuredApiUrl && !unusableApiBaseUrls.has(configuredApiUrl) && !retiredHostedApiBaseUrls.has(configuredApiUrl)
+    ? configuredApiUrl
+    : localFvsConnectorUrl;
 const healthCheckTimeoutMs = 15000;
 const runTimeoutMs = 180000;
 
@@ -65,7 +68,9 @@ function App() {
   const [csvDraft, setCsvDraft] = useState("");
   const [apiUrl, setApiUrl] = useState(() => {
     const savedUrl = localStorage.getItem("woodwise-aac-api-url")?.replace(/\/$/, "") || "";
-    return unusableApiBaseUrls.has(savedUrl) ? configuredApiBaseUrl : savedUrl || configuredApiBaseUrl;
+    return unusableApiBaseUrls.has(savedUrl) || retiredHostedApiBaseUrls.has(savedUrl)
+      ? localFvsConnectorUrl
+      : savedUrl || configuredApiBaseUrl;
   });
   const [runState, setRunState] = useState<"idle" | "submitting" | "submitted" | "blocked" | "error">("idle");
   const [runMessage, setRunMessage] = useState("");
@@ -94,14 +99,21 @@ function App() {
 
     if (!runApiUrl) {
       setRunState("blocked");
-      setRunMessage(`No FVS service URL is configured. Use ${localFvsConnectorUrl} for the local connector or ${defaultApiBaseUrl} for the hosted fallback.`);
+      setRunMessage(`No FVS service URL is configured. Use ${localFvsConnectorUrl} for the local connector.`);
+      setRunResult(null);
+      return;
+    }
+
+    if (retiredHostedApiBaseUrls.has(runApiUrl)) {
+      setRunState("blocked");
+      setRunMessage("The hosted WoodWise FVS service is no longer available for public runs. Start the local WoodWise FVS service and use the Local FVS connection.");
       setRunResult(null);
       return;
     }
 
     if (unusableApiBaseUrls.has(runApiUrl)) {
       setRunState("blocked");
-      setRunMessage(`${runApiUrl} serves the browser app, not the WoodWise FVS API. Use the hosted API URL, currently expected to be ${defaultApiBaseUrl}.`);
+      setRunMessage(`${runApiUrl} serves the browser app, not the WoodWise FVS service. Use ${localFvsConnectorUrl} for the local connector.`);
       setRunResult(null);
       return;
     }
@@ -286,7 +298,7 @@ function App() {
 
       <section className="status-band">
         <StatusPill tone="ok" label="Local FVS encouraged" />
-        <span>Run FVS on this computer through the WoodWise local connector, or use the hosted WoodWise API as a fallback.</span>
+        <span>Run FVS on this computer through the WoodWise local connector.</span>
       </section>
 
       <section className="run-panel" aria-label="Run FVS analysis">
@@ -302,14 +314,11 @@ function App() {
         <div className="run-actions">
           <label className="api-url-field">
             <span>FVS service URL</span>
-            <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} placeholder={defaultApiBaseUrl} />
+            <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} placeholder={localFvsConnectorUrl} />
           </label>
           <div className="connection-buttons" aria-label="Choose FVS connection">
             <button type="button" className="secondary-button" onClick={() => setApiUrl(localFvsConnectorUrl)}>
               <MonitorDown size={18} /> Use Local FVS
-            </button>
-            <button type="button" className="secondary-button" onClick={() => setApiUrl(defaultApiBaseUrl)}>
-              <Server size={18} /> Use hosted fallback
             </button>
           </div>
           <div className="setup-links" aria-label="Local FVS setup links">
@@ -528,13 +537,13 @@ function App() {
           </div>
           <div className="report-copy">
             <p>Sawtimber is reported in MBF using International 1/4-inch rule language. Green tons are a separate non-sawtimber product stream for roundwood, pulpwood, and firewood, reported as green short tons with bark included. Sawtimber MBF and green tons are paired outputs and are never added together.</p>
-            <p>Sustainable repeated-harvest AAC and binding constraints require official Northeast FVS output from either the local WoodWise connector or the hosted WoodWise API.</p>
+            <p>Sustainable repeated-harvest AAC and binding constraints require official Northeast FVS output from the local WoodWise connector.</p>
           </div>
         </section>
       ) : (
         <section className="panel pending-report">
           <SectionHeader title="AAC report not generated yet" kicker="Run FVS first" />
-          <p>Load or edit strata, choose Local FVS or hosted fallback, then click <strong>Run FVS analysis</strong>. The AAC report will appear after Northeast FVS returns results for the current inputs.</p>
+          <p>Load or edit strata, start the local FVS connector, then click <strong>Run FVS analysis</strong>. The AAC report will appear after Northeast FVS returns results for the current inputs.</p>
         </section>
       )}
 
@@ -545,7 +554,7 @@ function App() {
           <div><dt>API URL</dt><dd>{apiUrl || "Not configured"}</dd></div>
           <div><dt>Health status</dt><dd>{healthStatus}</dd></div>
           <div><dt>FVS variant</dt><dd>NE required</dd></div>
-          <div><dt>FVS runtime</dt><dd>Local connector or hosted API</dd></div>
+          <div><dt>FVS runtime</dt><dd>Local connector</dd></div>
           <div><dt>Configuration</dt><dd>Forest types 1.0; site crosswalk 0.1 unvalidated</dd></div>
         </dl>
         <details className="admin-service">
@@ -553,9 +562,6 @@ function App() {
           <div className="admin-actions">
             <button disabled={adminState === "checking" || adminState === "restarting"} onClick={() => void checkFvsHealth()}>
               <ShieldCheck size={18} /> Check health
-            </button>
-            <button disabled={adminState === "checking" || adminState === "restarting"} onClick={() => void restartFvsService()}>
-              <RotateCw size={18} /> Restart FVS API
             </button>
           </div>
           {adminMessage && <p className={`admin-message ${adminState}`}>{adminMessage}</p>}
